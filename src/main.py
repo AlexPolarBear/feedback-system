@@ -1,5 +1,5 @@
 import logging
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, exceptions
 from aiogram.utils import executor
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -11,7 +11,14 @@ from data import get_faculties, get_directions_by_faculty_id, get_courses_by_dir
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=bot_token)
+
+try:
+    bot = Bot(token=bot_token)
+except exceptions.ValidationError as e:
+    print(e)
+    print("Hint: set correct bot_token in ../data/config.json file before running up the bot")
+    exit(0)
+
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
