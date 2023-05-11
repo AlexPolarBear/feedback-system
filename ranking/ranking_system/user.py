@@ -5,8 +5,8 @@ from context import Context
 class User:
     chat_id : int
     name : int
-    email : str = "@"
-    direction : str = "Математика" 
+    email : str
+    direction : str 
     context : Context
 
     def __post_init__(self):
