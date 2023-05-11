@@ -4,7 +4,7 @@ from context import Context
 @dataclass
 class User:
     chat_id : int
-    name : int
+    name : str
     email : str
     direction : str 
     context : Context

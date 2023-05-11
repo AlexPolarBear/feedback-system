@@ -3,4 +3,6 @@ from tag import Tag
 
 @dataclass
 class Context:
-    context : list[Tag] = field(default_factory=list)
+    context : dict[int, Tag]
+
+    
