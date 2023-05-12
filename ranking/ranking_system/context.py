@@ -3,6 +3,6 @@ from tag import Tag
 
 @dataclass
 class Context:
+    # dict[id, Tag]
     context : dict[int, Tag]
 
-    
