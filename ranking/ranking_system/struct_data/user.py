@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from context import Context 
+from .context import Context 
 
 @dataclass
 class User:

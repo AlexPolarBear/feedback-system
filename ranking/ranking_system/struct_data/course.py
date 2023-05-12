@@ -1,17 +1,17 @@
 from dataclasses import dataclass
-from context import Context 
+from .context import Context 
 
 @dataclass
 class Course:
-    id : int
-    field_of_knowledge : str
-    short_name : str
-    full_name : str
-    size : str
+    short_name : str # PK  
     description : str
-    lecturer_id : int
-    year : int
-    context : Context
+    id : int = None
+    field_of_knowledge : str = None
+    full_name : str = None
+    size : str = None
+    lecturer_id : int = None
+    year : int = None
+    context : Context = None
 
     def __post_init__(self):
         pass

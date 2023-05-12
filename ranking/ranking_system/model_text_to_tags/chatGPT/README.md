@@ -3,7 +3,7 @@
 
 Главная идея: Кормим `ChatGPT` текстовое описание курса `./data/courses/*` с нужным контекстом `./data/context.txt`
 
-Ключ от `ChatGPT` должен лежать в `./project_secrets.py` в переменной `OPENAI_KEY` 
+Ключ от `ChatGPT` должен лежать в `./project_secrets_local.py` в переменной `OPENAI_KEY`. (для примера `./project_secrets.py`) 
 
 
 

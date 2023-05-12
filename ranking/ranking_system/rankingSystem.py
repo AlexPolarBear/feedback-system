@@ -6,9 +6,9 @@ from struct_data.context import Context
 from struct_data.user import User
 from struct_data.course import Course
 
-from data.simpleCourses import simple_courses
-from data.simpleUsers import simple_users
-from data.simpleTags import simple_tags
+from simple_data.simpleCourses import simple_courses
+from simple_data.simpleUsers import simple_users
+from simple_data.simpleTags import simple_tags
 
 # algorithms
 import Levenshtein # distance
