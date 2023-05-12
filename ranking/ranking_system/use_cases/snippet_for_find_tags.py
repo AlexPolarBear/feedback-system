@@ -14,8 +14,8 @@ if __name__ == "__main__":
     ranking_system.update_users()
 
     req = "Алгебраические кольца"
-    tags = ranking_system.get_top_nearest_tags(req=req)
+    tags = ranking_system.get_top_suitable_tags_by_text(req=req)
     print(tags)
     
-    tags = ranking_system.get_top_nearest_tags(req=req, metric_func=RankingSystem._inv_levenshtain_ratio)
+    tags = ranking_system.get_top_suitable_tags_by_text(req=req, metric_func=RankingSystem._inv_levenshtain_ratio)
     print(tags)

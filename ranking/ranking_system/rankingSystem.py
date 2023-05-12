@@ -114,6 +114,7 @@ class RankingSystem:
     # __TOP_MATH
 
     # TOP_TAGS_FOR_SNIPPET 
+    ## TEXT_TO_TAG
     @staticmethod
     def _levenshtain_distance(s1 : str, s2 : str) -> int:
         """
@@ -132,7 +133,7 @@ class RankingSystem:
         
         return 1. - Levenshtein.ratio(s1, s2)
     
-    def get_top_nearest_tags(self, req : str, metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
+    def get_top_suitable_tags_by_text(self, req : str, metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
                          count : int = 20) -> Tuple[List[Tag], List[Union[int, float]]] :
         
         metric_and_tag_list = []
@@ -147,5 +148,32 @@ class RankingSystem:
         result = metric_and_tag_list[:result_count]
 
         return [res[1] for res in result], [res[0] for res in result]
-        
+    ## __TEXT_TO_TAG
+
+    ## OFFER_TAGS_WITHOUT_TEXT
+    def get_top_suitable_tags_by_context(self, user : User, 
+                                         count : int = 20) -> Tuple[List[Tag], List[Union[int, float]]]:
+        # TODO
+ 
+        pass
+
+    ## __OFFER_TAGS_WITHOUT_TEXT
     # __TOP_TAGS_FOR_SNIPPET
+
+    # GENERATE_TAGS_FOR_COURSES
+    @staticmethod
+    def _genenerate_tags_from_description_by_chatGPT(course : Course,
+                                                    context_in_line : str = None) -> List[Tag]:
+        pass
+    
+    def _generate_tags_for_courses(self, gen_tags_func : Callable[[Course], List[Tag]]):
+        """Курсы должны быть уже загружены в класс в self.courses с пустым контекстом, 
+        здесь будем его преподготавливать и заполнять. 
+
+        Возможно кластеризовать [если будет проблема с одинаковыми тегами по смыслу] 
+        """
+        
+        pass
+
+
+    # __GENERATE_TAGS_FOR_COURSES
