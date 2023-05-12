@@ -1,10 +1,10 @@
 from typing import Callable, Union, List, Tuple
 
 
-from tag import Tag
-from context import Context
-from user import User
-from course import Course
+from struct_data.tag import Tag
+from struct_data.context import Context
+from struct_data.user import User
+from struct_data.course import Course
 
 from data.simpleCourses import simple_courses
 from data.simpleUsers import simple_users
@@ -166,7 +166,7 @@ class RankingSystem:
                                                     context_in_line : str = None) -> List[Tag]:
         pass
     
-    def _generate_tags_for_courses(self, gen_tags_func : Callable[[Course], List[Tag]]):
+    def generate_tags_for_courses(self, gen_tags_func : Callable[[Course], List[Tag]]):
         """Курсы должны быть уже загружены в класс в self.courses с пустым контекстом, 
         здесь будем его преподготавливать и заполнять. 
 

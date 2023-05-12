@@ -1,15 +1,4 @@
-from struct_data.tag import Tag
-from struct_data.context import Context
-from struct_data.course import Course
-
-simple_courses = [
-    Course(
-    id=1,
-    field_of_knowledge="Алгебра",
-    short_name="CommAlg", 
-    full_name="Коммутативная алгебра",
-    size="б",
-    description="""059719	Коммутативная алгебра
+059719	Коммутативная алгебра
 
 Курс посвящен структурной теории коммутативных колец, которая лежит в основе алгебраической геометрии и алгебраической
 теории чисел. Коммутативные кольца являются картами в атласах для алгебраических многообразий,
@@ -26,17 +15,4 @@ simple_courses = [
 Д. Айзенбад, Коммутативная алгебра с прицелом на алгебраическую геометрию, МЦНМО, Москва, 2017. 
 М. Атья, И. Макдональд, Введение в коммутативную алгебру, Мир, Москва, 1972.
 H. Matsumura, Commutative algebra, 2nd ed., Benjamin/Cummings Publishing Co., Reading, Mass., 1980.
-J.-P. Serre, Local algebra, Springer-Verlag, Berlin Heidelberg New York, 2000.""",
-    lecturer_id=1,
-    year=2023,
-    context=Context(
-        {
-            1 : Tag(id=1, title="Алгебра", type=0),
-            2 : Tag(id=2, title="Группы", type=5),
-            3 : Tag(id=3, title="Целые числа", type=5),
-            4 : Tag(id=4, title="Кольца", type=5),
-            5 : Tag(id=5, title="Многочлены", type=5),
-        }
-    )
-    )
-]
+J.-P. Serre, Local algebra, Springer-Verlag, Berlin Heidelberg New York, 2000.

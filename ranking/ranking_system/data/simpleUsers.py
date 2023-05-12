@@ -1,6 +1,6 @@
-from tag import Tag
-from context import Context
-from user import User
+from struct_data.tag import Tag
+from struct_data.context import Context
+from struct_data.user import User
 
 simple_users = [
     User(
