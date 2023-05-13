@@ -2,6 +2,8 @@ import openai
 import sys
 import os
 
+from typing import List, Union
+
 # secrets
 import project_secrets_local
 
@@ -43,6 +45,31 @@ class ChatGPT:
 
     #     return courses_list
     
+    # READ_WRITE_TAGS
+    @staticmethod
+    def _get_path_to_tag_by_name(short_name: str) -> str:
+        final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_TXT, f'{short_name}_tags.txt')
+        return final_path
+    
+    @staticmethod
+    def _save_tags_txt(short_name : str, tags_txt : str,
+                        PATH_TO_TAGS_TXT : str = PATH_TO_TAGS_TXT):
+        path_to_tag_txt_new_file = ChatGPT._get_path_to_tag_by_name(short_name)
+        file = open(path_to_tag_txt_new_file, 'w', encoding="utf-8")
+        file.write(tags_txt)
+    
+    @staticmethod
+    def _read_tags_txt_from_file(short_name : str) -> Union[str, None]: 
+        path_to_tag_txt_file = ChatGPT._get_path_to_tag_by_name(short_name)
+        try:
+            file = open(path_to_tag_txt_file, 'r', encoding="utf-8")
+            tags_txt = file.read()
+            return tags_txt
+        except:
+            return None
+
+    # __READ_WRITE_TAGS
+
     # WORK_WITH_CHAT_GPT
     @staticmethod
     def _get_text_tags_from_course_per_api_chatGPT(course_describe : str, context : str,
@@ -60,13 +87,6 @@ class ChatGPT:
             print("ChatGPT request is finished! [*/]")
 
         return completion.choices[0].message.content
-
-    @staticmethod
-    def _save_tags_txt(short_name : str, tags_txt : str,
-                        PATH_TO_TAGS_TXT : str = PATH_TO_TAGS_TXT):
-        path_to_tag_txt_new_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_TXT, f'{short_name}_tags.txt')
-        file = open(path_to_tag_txt_new_file, 'w', encoding="utf-8")
-        file.write(tags_txt)
         
 
     def _get_and_save_tags_txt_for_course_by_descr(self, course : Course, context : str,
@@ -84,5 +104,20 @@ class ChatGPT:
 
         return tags_txt
 
-
     # __WORK_WITH_CHAT_GPT
+
+    # PROCESSING_TAGS
+    @staticmethod
+    def _tags_txt_to_tags(tags_txt : str) -> List[Tag]:
+        tags_txt_list =  tags_txt.strip('.').strip().split(',')
+        tags_list = []
+        for tag_txt in tags_txt_list:
+            result_tag_txt = tag_txt.strip()
+            # id and type : future - maybe need to procced after generate all tags
+            tag = Tag(id=-1, title=result_tag_txt, type=-1)
+            tags_list.append(tag)
+
+        return tags_list
+    
+
+    # __PROCESSING_TAGS
