@@ -1,0 +1,26 @@
+[
+    {
+        "chat_id": 333512761,
+        "metric_id": 0,
+        "course_id": 0,
+        "score": 10
+    },
+    {
+        "chat_id": 333512761,
+        "metric_id": 1,
+        "course_id": 0,
+        "score": 5
+    },
+    {
+        "chat_id": 333512761,
+        "metric_id": 3,
+        "course_id": 0,
+        "score": 5
+    },
+    {
+        "chat_id": 333512761,
+        "metric_id": 2,
+        "course_id": 0,
+        "score": 3
+    }
+]
