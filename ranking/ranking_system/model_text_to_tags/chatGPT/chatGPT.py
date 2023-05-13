@@ -68,6 +68,8 @@ class ChatGPT:
         except:
             return None
 
+    
+
     # __READ_WRITE_TAGS
 
     # WORK_WITH_CHAT_GPT
