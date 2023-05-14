@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
-from typing import List, Dict
 import json
+
+from typing import List, Dict
+from .tag_id import TagId
 
 
 from .tag import Tag
@@ -8,9 +10,9 @@ from .tag import Tag
 @dataclass
 class Context:
     # dict[id, Tag]
-    context : dict[int, Tag]
+    context : dict[TagId, Tag]
     
-    def __init__(self, tags : Dict[int, Tag]):
+    def __init__(self, tags : Dict[TagId, Tag]):
         self.context = tags
 
 

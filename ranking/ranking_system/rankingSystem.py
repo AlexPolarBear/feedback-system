@@ -1,14 +1,14 @@
 from typing import Callable, Union, List, Tuple
+from .struct_data.tag_id import TagId
 
+from .struct_data.tag import Tag
+from .struct_data.context import Context
+from .struct_data.user import User
+from .struct_data.course import Course
 
-from struct_data.tag import Tag
-from struct_data.context import Context
-from struct_data.user import User
-from struct_data.course import Course
-
-from simple_data.simpleCourses import simple_courses
-from simple_data.simpleUsers import simple_users
-from simple_data.simpleTags import simple_tags
+from .simple_data.simpleCourses import simple_courses
+from .simple_data.simpleUsers import simple_users
+from .simple_data.simpleTags import simple_tags
 
 # algorithms
 import Levenshtein # distance
@@ -21,7 +21,7 @@ class RankingSystem:
 
     def __init__(self, users : list[User] = None,
                   courses : list[Course] = None,
-                  tags : dict[int, Tag] = None) -> None:
+                  tags : dict[TagId, Tag] = None) -> None:
         self.users = users
         self.courses = courses
         self.tags = tags
@@ -78,13 +78,13 @@ class RankingSystem:
         # try except
         self.tags = self._get_simple_tags()
     
-    def _get_tags(self) -> dict[int, Tag]:
+    def _get_tags(self) -> dict[TagId, Tag]:
         return self.tags
 
     def _print_tags(self):
         print("[\ tags]")
-        for tag in self.tags:
-            print(self.tags[tag])
+        for tag_id in self.tags:
+            print(self.tags[tag_id])
         print("[tags /]")
     
     # __TAGS

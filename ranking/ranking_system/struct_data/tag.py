@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 import json
 
+from .tag_id import TagId
+
 @dataclass(frozen=True)
 class Tag:
-    id : int
+    id : TagId
     title : str
     type : int
 

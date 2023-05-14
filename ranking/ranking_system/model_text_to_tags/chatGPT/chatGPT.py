@@ -1,14 +1,15 @@
 import openai
 import sys
 import os
+# root general module in ranking_system 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from typing import List, Union, Dict
+from struct_data.tag_id import TagId
 
 # secrets
 import project_secrets_local
 
-# root general module in ranking_system 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 # strcuct data
 from struct_data.tag import Tag
@@ -79,12 +80,12 @@ class ChatGPT:
         return final_path
     
     @staticmethod
-    def _save_tags_json_to_file(short_name : str, tags : Union[List[Tag], Context], 
+    def _save_tags_json_to_file(short_name : str, tags_dict : Union[Dict[TagId, Tag], Context], 
                                 path_to_tags_json : str = PATH_TO_TAGS_JSON, 
                                 verbose : bool = False) -> None:
-        result_context = tags
-        if type(tags) != Context:
-            result_context = Context(tags=tags)
+        result_context = tags_dict
+        if type(tags_dict) != Context:
+            result_context = Context(tags=tags_dict)
         absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
                                                             path_to_tags_json=path_to_tags_json)
         result_context._save_context_json(absolute_path=absolute_path)
@@ -140,7 +141,7 @@ class ChatGPT:
     # __GENERATE_UNIQUE_TAG_ID
 
     # PROCESSING_TAGS
-    def _tags_txt_to_tags(self, tags_txt : str) -> Dict[int, Tag]:
+    def _tags_txt_to_tags(self, tags_txt : str) -> Dict[TagId, Tag]:
         tags_txt_list =  tags_txt.strip('.').strip().split(',')
         tags_dict = dict()
         for tag_txt in tags_txt_list:
