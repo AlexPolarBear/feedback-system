@@ -2,42 +2,42 @@ from dataclasses import dataclass, field
 import json
 
 from typing import List, Dict
-from .tag_id import TagId
-
+from .aliases import TagTitle
 
 from .tag import Tag
 
 @dataclass
 class Context:
     # dict[id, Tag]
-    context : dict[TagId, Tag]
+    context : dict[TagTitle, Tag]
     
-    def __init__(self, tags : Dict[TagId, Tag]):
+    def __init__(self, tags : Dict[TagTitle, Tag]):
         self.context = tags
 
 
     # READ_WRITE_CONTEXT
     @staticmethod
-    def _context_to_json(context : "Context") -> dict[TagId, Tag]:
+    def _context_to_json(context : "Context") -> dict[TagTitle, Tag]:
         context_json : dict = dict()
         # print(f"Context._context_to_json self.context={self.context}")
 
-        for tag_id in context.context:
-            context_json[tag_id] = context.context[tag_id]._tag_to_json()
+        for tag_title in context.context:
+            context_json[tag_title] = context.context[tag_title]._tag_to_json()
         
         return context_json
     
     @staticmethod
-    def _json_to_context(context_json : dict[TagId, Tag]) -> "Context":
+    def _json_to_context(context_json : dict[TagTitle, Tag]) -> "Context":
         context_res : Context = Context(tags=context_json)
 
         return context_res
     
-    def _save_context_json(self, absolute_path : str, indent=4, ensure_ascii=False) -> None:
+    @staticmethod
+    def _save_context_json(context : "Context", absolute_path : str, indent=4, ensure_ascii=False) -> None:
         # print(f"Context._save_context_json absolute_path={absolute_path}")
 
         with open(absolute_path, 'w', encoding="utf-8") as file:
-            json.dump(self._context_to_json(), file, indent=4, ensure_ascii=False)
+            json.dump(Context._context_to_json(context), file, indent=4, ensure_ascii=False)
 
     @staticmethod
     def _load_context_json_from_file_json(absolute_path : str) -> dict:

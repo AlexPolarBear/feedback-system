@@ -16,8 +16,8 @@ from struct_data.course import Course
 from struct_data.context import Context
 from struct_data.user import User
 # alias
-from struct_data.tag_id import TagId
-from struct_data.courseShortName import courseShortName
+from struct_data.aliases import TagTitle, CourseShortName
+
 
 
 class ChatGPT:
@@ -43,19 +43,19 @@ class ChatGPT:
     # READ_WRITE_TAGS
     ## TAG_TXT
     @staticmethod
-    def _get_path_to_tag_txt_by_name(short_name: str) -> str:
+    def _get_path_to_tag_txt_by_name(short_name: CourseShortName) -> str:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_TXT, f'{short_name}_tags.txt')
         return final_path
     
     @staticmethod
-    def _save_tags_txt(short_name : str, tags_txt : str,
+    def _save_tags_txt(short_name : CourseShortName, tags_txt : str,
                         PATH_TO_TAGS_TXT : str = PATH_TO_TAGS_TXT):
         path_to_tag_txt_new_file = ChatGPT._get_path_to_tag_txt_by_name(short_name)
         file = open(path_to_tag_txt_new_file, 'w', encoding="utf-8")
         file.write(tags_txt)
     
     @staticmethod
-    def _read_tags_txt_from_file(short_name : str) -> Union[str, None]: 
+    def _read_tags_txt_from_file(short_name : CourseShortName) -> Union[str, None]: 
         path_to_tag_txt_file = ChatGPT._get_path_to_tag_txt_by_name(short_name)
         try:
             file = open(path_to_tag_txt_file, 'r', encoding="utf-8")
@@ -65,7 +65,7 @@ class ChatGPT:
             return None
         
     @staticmethod
-    def _is_exists_tags_txt(short_name : str):
+    def _is_exists_tags_txt(short_name : CourseShortName):
         path_to_tag_txt = ChatGPT._get_path_to_tag_txt_by_name(short_name)
         is_exists = os.path.isfile(path_to_tag_txt)
         # print(f"ChatGPT._is_exists_tags_txt.path_to_tag_txt={path_to_tag_txt} is_exists={is_exists}")
@@ -77,30 +77,34 @@ class ChatGPT:
     
     ## JSON
     @staticmethod
-    def _get_path_to_tag_json_by_name(short_name: str, path_to_tags_json : str = PATH_TO_TAGS_JSON) -> str:
+    def _get_path_to_tag_json_by_name(short_name: CourseShortName, path_to_tags_json : str = PATH_TO_TAGS_JSON) -> str:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), path_to_tags_json, f'{short_name}_tags.json')
         return final_path
     
     @staticmethod
-    def _save_tags_json_to_file(short_name : str, tags_dict : Union[Dict[TagId, Tag], Context], 
+    def _save_tags_json_to_file(short_name : CourseShortName, tags_dict : Dict[TagTitle, Tag], 
                                 path_to_tags_json : str = PATH_TO_TAGS_JSON, 
                                 verbose : bool = False) -> None:
-        result_context = tags_dict
-        if type(tags_dict) == Dict[TagId, Tag]:
-            result_context = Context(tags=tags_dict)
-        elif type(tags_dict) == Context:
-            pass
-        else:
-            raise f"ChatGPT._save_tags_json_to_file type(tags_dict)={type(tags_dict)}!= Union[Dict[TagId, Tag], Context]"
+        result_context = Context(tags=tags_dict)
+        # print(f"ChatGPT._save_tags_json_to_file: type(tags_dict)={type(tags_dict)}")
+
+        # if type(tags_dict) == Dict[TagTitle, Tag]:
+        #     result_context = Context(tags=tags_dict)
+        # elif type(tags_dict) == Context:
+        #     pass
+        # else:
+        #     print(f"ChatGPT._save_tags_json_to_file type(tags_dict)={type(tags_dict)}!= Union[Dict[TagTitle, Tag], Context]")
+        #     # raise f"ChatGPT._save_tags_json_to_file type(tags_dict)={type(tags_dict)}!= Union[Dict[TagTitle, Tag], Context]"
+        #     raise AssertionError
 
         absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
                                                             path_to_tags_json=path_to_tags_json)
-        result_context._save_context_json(absolute_path=absolute_path)
+        Context._save_context_json(absolute_path=absolute_path, context=result_context)
         if verbose:
             print(f"[\*]{short_name} is downloaded -> {absolute_path} [*/]")
 
     @staticmethod
-    def _load_tags_from_tags_json_file(short_name : str, 
+    def _load_tags_from_tags_json_file(short_name : CourseShortName, 
                                     path_to_tags_json : str = PATH_TO_TAGS_JSON, 
                                     verbose : bool = False) -> Context:
         absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
@@ -114,7 +118,7 @@ class ChatGPT:
 
 
     @staticmethod
-    def _is_exists_tags_json(short_name : str):
+    def _is_exists_tags_json(short_name : CourseShortName):
         path_to_tag_json = ChatGPT._get_path_to_tag_json_by_name(short_name)
         return os.path.isfile(path_to_tag_json)
     
@@ -132,12 +136,12 @@ class ChatGPT:
         return final_path
 
     @staticmethod
-    def _get_path_to_courses_txt_by_name(short_name: str) -> str:
+    def _get_path_to_courses_txt_by_name(short_name: CourseShortName) -> str:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_COURSES_DIR, f'{short_name}.txt')
         return final_path
     
     @staticmethod
-    def _get_path_to_courses_json_by_name(short_name: str) -> str:
+    def _get_path_to_courses_json_by_name(short_name: CourseShortName) -> str:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_JSON, f'{short_name}.json')
         return final_path
 
@@ -276,20 +280,21 @@ class ChatGPT:
     # __GENERATE_UNIQUE_TAG_ID
 
     # PROCESSING_TAGS
-    def _tags_txt_to_tags(self, tags_txt : str) -> Dict[TagId, Tag]:
+    def _tags_txt_to_tags(self, tags_txt : str) -> Dict[TagTitle, Tag]:
         tags_txt_list =  tags_txt.strip('.').strip().split(',')
         tags_dict = dict()
         for tag_txt in tags_txt_list:
             result_tag_txt = tag_txt.strip()
             # id and type : future - maybe need to procced after generate all tags
             # tag = Tag(id=-1, title=result_tag_txt, type=-1)
-            tag = Tag(id=self._get_unique_tag_id(), title=result_tag_txt, type=-1)
-            tags_dict[tag.id] = tag
+            # tag = Tag(id=self._get_unique_tag_id(), title=result_tag_txt, type=-1)
+            tag = Tag(id=-1, title=result_tag_txt, type=-1)
+            tags_dict[tag.title] = tag
 
         return tags_dict   
     
 
-    def _union_all_tags(courses : List[Course]) -> Dict[TagId, Tag]:
+    def _union_all_tags(courses : List[Course]) -> Dict[TagTitle, Tag]:
         pass
 
 

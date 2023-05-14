@@ -31,11 +31,11 @@ J.-P. Serre, Local algebra, Springer-Verlag, Berlin Heidelberg New York, 2000.""
     year=2023,
     context=Context(
         {
-            1 : Tag(id=1, title="Алгебра", type=0),
-            2 : Tag(id=2, title="Группы", type=5),
-            3 : Tag(id=3, title="Целые числа", type=5),
-            4 : Tag(id=4, title="Кольца", type=5),
-            5 : Tag(id=5, title="Многочлены", type=5),
+            "Алгебра" : Tag(id=1, title="Алгебра", type=0),
+            "Группы" : Tag(id=2, title="Группы", type=5),
+            "Целые числа" : Tag(id=3, title="Целые числа", type=5),
+            "Кольца" : Tag(id=4, title="Кольца", type=5),
+            "Многочлены" : Tag(id=5, title="Многочлены", type=5),
         }
     )
     )
