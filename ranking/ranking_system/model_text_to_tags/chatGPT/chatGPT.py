@@ -21,7 +21,7 @@ from struct_data.user import User
 class ChatGPT:
     CHATGPT_MODEL : str  = "gpt-3.5-turbo"
     PATH_TO_CONTEXT_FILE : str = os.path.join("data", "context.txt")
-    PATH_TO_COURSES_DIR : str = os.path.join("data", "courses")
+    PATH_TO_COURSES_DIR : str = os.path.join("data", "courses_txt")
     PATH_TO_TAGS_TXT : str = os.path.join("data", "saved_data", "tags_txt")
     PATH_TO_TAGS_JSON : str = os.path.join("data", "saved_data", "tags_json")
 
@@ -36,17 +36,7 @@ class ChatGPT:
 
         file = open(path_to_curdir, "r", encoding="utf-8")
         return file.read()
-    
-    # @staticmethod
-    # def get_list_of_simple_courses(path_to_dir=PATH_TO_COURSES_DIR) -> list[Course]:
-    #     courses_list = []
-    #     for filename in os.listdir(path_to_dir):
-    #         path_to_file = f"{path_to_dir}/{filename}"
-    #         file = open(path_to_file, "r", encoding="utf-8")
 
-    #         courses_list.append(Course(tag=filename, description=file.read()))
-
-    #     return courses_list
     
     # READ_WRITE_TAGS
     ## TAG_TXT
@@ -71,6 +61,16 @@ class ChatGPT:
             return tags_txt
         except:
             return None
+        
+    @staticmethod
+    def _is_exists_tags_txt(short_name : str):
+        path_to_tag_txt = ChatGPT._get_path_to_tag_txt_by_name(short_name)
+        is_exists = os.path.isfile(path_to_tag_txt)
+        # print(f"ChatGPT._is_exists_tags_txt.path_to_tag_txt={path_to_tag_txt} is_exists={is_exists}")
+
+        return is_exists
+
+
     ## __TAG_TXT
     
     ## JSON
@@ -92,11 +92,53 @@ class ChatGPT:
         if verbose:
             print(f"[\*]{short_name} is downloaded -> {absolute_path} [*/]")
 
+    @staticmethod
+    def _is_exists_tags_json(short_name : str):
+        path_to_tag_json = ChatGPT._get_path_to_tag_json_by_name(short_name)
+        return os.path.isfile(path_to_tag_json)
+    
     ## __JSON
+
+    ## COURSES
+    @staticmethod
+    def _get_path_to_courses_txt_dir() -> str:
+        final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_COURSES_DIR)
+        return final_path
+
+    @staticmethod
+    def _get_path_to_courses_txt_by_name(short_name: str) -> str:
+        final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_COURSES_DIR, f'{short_name}.txt')
+        return final_path
+    
+    @staticmethod
+    def read_all_courses_txt_to_courses() -> List[Course]:
+        """
+        return : only Courses(description, short_name)
+        """
+
+        courses_list = []
+        for course_file_name in os.listdir(ChatGPT._get_path_to_courses_txt_dir()):
+            # short_name.txt
+            short_name, _ = course_file_name.split('.')
+            path_to_course_file = ChatGPT._get_path_to_courses_txt_by_name(short_name=short_name)
+
+            try:
+                with open(path_to_course_file, 'r', encoding="utf-8") as course_file:
+                    course = Course(short_name=short_name,
+                                    description=course_file.read())
+
+                    courses_list.append(course)
+            except IOError as e:
+                print(f"ChatGPT.read_all_courses_txt_to_courses: {course_file_name} do not open! e={e}\n")
+
+        return courses_list
+    
+    ## __COURSES
 
     # __READ_WRITE_TAGS
 
     # WORK_WITH_CHAT_GPT
+    ## SINGLE_WORK
     @staticmethod
     def _get_text_tags_from_course_per_api_chatGPT(course_describe : str, context : str,
                                                    verbose : bool = True) -> str:
@@ -113,9 +155,9 @@ class ChatGPT:
             print("ChatGPT request is finished! [*/]")
 
         return completion.choices[0].message.content
-        
-
-    def _get_and_save_tags_txt_for_course_by_descr(self, course : Course, context : str,
+    
+    @staticmethod
+    def _get_and_save_tags_txt_for_course_by_descr(course : Course, context : str,
                                                     another_name_for_course: str = None, is_save: bool = True) -> str:
         
         
@@ -129,7 +171,45 @@ class ChatGPT:
 
 
         return tags_txt
+    ## __SINGLE_WORK
 
+    ## MULTIPLY_WORK
+    def create_and_save_tags_by_courses(self, courses : List[Course], force : bool = False,
+                                        tags_txt_is_necessarily : bool = True,
+                                        verbose : bool = False) -> List[Union[Context, None]]:
+        """
+        force: False - without rewrite existed files 
+        
+        maybe return mask which create or not
+        """
+        chatGPT_context = ChatGPT.get_context()
+        context_list = []
+        for course in courses:
+            is_exists_tags_txt =  ChatGPT._is_exists_tags_txt(course.short_name)
+            is_exists_tags_json = ChatGPT._is_exists_tags_json(course.short_name)
+
+            # print(f"force={force}, is_exists_tags_txt={is_exists_tags_txt}, is_exists_tags_json={is_exists_tags_json}, tags_txt_is_necessarily={tags_txt_is_necessarily}")
+
+            tags_txt = None
+            if force or (tags_txt_is_necessarily and not is_exists_tags_txt):
+                tags_txt = ChatGPT._get_and_save_tags_txt_for_course_by_descr(course=course, context=chatGPT_context)
+            
+            if tags_txt is None:
+                tags_txt = ChatGPT._read_tags_txt_from_file(course.short_name)  
+
+            tags_dict = self._tags_txt_to_tags(tags_txt=tags_txt)
+
+            if force or not is_exists_tags_json:
+                ChatGPT._save_tags_json_to_file(short_name=course.short_name,
+                                                tags_dict=tags_dict,
+                                                verbose=verbose)
+            
+            context_list.append(Context(tags=tags_dict))
+        return context_list
+                
+        
+
+    ## __MULTIPLY_WORK
     # __WORK_WITH_CHAT_GPT
     
     # GENERATE_UNIQUE_TAG_ID 
