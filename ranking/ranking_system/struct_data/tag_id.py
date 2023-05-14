@@ -1,3 +1,0 @@
-
-TagId = int
-

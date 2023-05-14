@@ -1,5 +1,5 @@
 from typing import Callable, Union, List, Tuple, Dict
-from .struct_data.tag_id import TagId
+from .struct_data.aliases import TagId, TagTitle
 
 from .struct_data.tag import Tag
 from .struct_data.context import Context
@@ -9,6 +9,8 @@ from .struct_data.course import Course
 from .simple_data.simpleCourses import simple_courses
 from .simple_data.simpleUsers import simple_users
 from .simple_data.simpleTags import simple_tags
+
+
 
 # algorithms
 import Levenshtein # distance
@@ -21,7 +23,7 @@ class RankingSystem:
 
     def __init__(self, users : List[User] = None,
                   courses : List[Course] = None,
-                  tags : Dict[TagId, Tag] = None) -> None:
+                  tags : Dict[TagTitle, Tag] = None) -> None:
         self.users = users
         self.courses = courses
         self.tags = tags
@@ -78,13 +80,13 @@ class RankingSystem:
         # try except
         self.tags = self._get_simple_tags()
     
-    def _get_tags(self) -> Dict[TagId, Tag]:
+    def _get_tags(self) -> Dict[TagTitle, Tag]:
         return self.tags
 
     def _print_tags(self):
         print("[\ tags]")
-        for tag_id in self.tags:
-            print(self.tags[tag_id])
+        for tag_title in self.tags:
+            print(self.tags[tag_title])
         print("[tags /]")
     
     # __TAGS
@@ -92,8 +94,8 @@ class RankingSystem:
     # TOP_MATH
     def _calc_distance_between_user_and_course(self, user : User, course : Course):
         distance = 0
-        for tag_id in user.context.context:
-            if tag_id in course.context.context:
+        for tag_title in user.context.context:
+            if tag_title in course.context.context:
                 distance += 1
 
         return distance
@@ -138,9 +140,9 @@ class RankingSystem:
         
         metric_and_tag_list = []
 
-        for tag_id in self.tags:
-            metric = metric_func(req, self.tags[tag_id].title)
-            metric_and_tag_list.append((metric, self.tags[tag_id]))
+        for tag_title in self.tags:
+            metric = metric_func(req, self.tags[tag_title].title)
+            metric_and_tag_list.append((metric, self.tags[tag_title]))
 
         metric_and_tag_list = sorted(metric_and_tag_list, key=lambda x: x[0], reverse=False)
         

@@ -10,8 +10,8 @@ simple_users = [
     direction="НОД",
     context=Context(
         {
-            1 : Tag(id=1, title="Алгебра", type=0),
-            2 : Tag(id=2, title="Группы", type=5),
+            "Алгебра" : Tag(id=1, title="Алгебра", type=0),
+            "Группы" : Tag(id=2, title="Группы", type=5),
         }
     )
     )

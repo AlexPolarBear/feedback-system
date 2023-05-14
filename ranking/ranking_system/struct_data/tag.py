@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 import json
 
-from .tag_id import TagId
+from .aliases import TagTitle, TagId
 
-@dataclass(frozen=True)
+@dataclass()
 class Tag:
     id : TagId
-    title : str
+    title : TagTitle # PK
     type : int
 
     def _tag_to_json(self) -> dict:
