@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
+from typing import List, Dict
 import json
+
 
 from .tag import Tag
 
@@ -7,16 +9,24 @@ from .tag import Tag
 class Context:
     # dict[id, Tag]
     context : dict[int, Tag]
+    
+    def __init__(self, tags : Dict[int, Tag]):
+        self.context = tags
+
 
     # READ_WRITE_CONTEXT
     def _context_to_json(self) -> dict:
         context_json : dict = dict()
-        for id in self.context:
-            context_json[id] = self.context[id]._tag_to_json()
+        # print(f"Context._context_to_json self.context={self.context}")
+
+        for tag_id in self.context:
+            context_json[tag_id] = self.context[tag_id]._tag_to_json()
         
         return context_json
     
     def _save_context_json(self, absolute_path : str, indent=4, ensure_ascii=False) -> None:
+        # print(f"Context._save_context_json absolute_path={absolute_path}")
+
         with open(absolute_path, 'w', encoding="utf-8") as file:
             json.dump(self._context_to_json(), file, indent=4, ensure_ascii=False)
 

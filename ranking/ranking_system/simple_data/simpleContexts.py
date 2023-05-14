@@ -6,4 +6,6 @@ from simple_data.simpleTags import simple_tags
 
 
 
-simple_context = Context(context=simple_tags)
+simple_contexts = [Context(tags=simple_tags)]
+
+

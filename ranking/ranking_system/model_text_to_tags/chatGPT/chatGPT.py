@@ -2,7 +2,7 @@ import openai
 import sys
 import os
 
-from typing import List, Union
+from typing import List, Union, Dict
 
 # secrets
 import project_secrets_local
@@ -18,14 +18,16 @@ from struct_data.user import User
 
 
 class ChatGPT:
+    CHATGPT_MODEL : str  = "gpt-3.5-turbo"
     PATH_TO_CONTEXT_FILE : str = os.path.join("data", "context.txt")
     PATH_TO_COURSES_DIR : str = os.path.join("data", "courses")
-    CHATGPT_MODEL : str  = "gpt-3.5-turbo"
     PATH_TO_TAGS_TXT : str = os.path.join("data", "saved_data", "tags_txt")
+    PATH_TO_TAGS_JSON : str = os.path.join("data", "saved_data", "tags_json")
 
     def __init__(self):
         # Я так понимаю, при нескольких ключах можно этот параметр просто менять
         openai.api_key = project_secrets_local.OPENAI_KEY
+        self.max_id = 1
 
     @staticmethod
     def get_context(path_to_file=PATH_TO_CONTEXT_FILE):
@@ -46,29 +48,50 @@ class ChatGPT:
     #     return courses_list
     
     # READ_WRITE_TAGS
+    ## TAG_TXT
     @staticmethod
-    def _get_path_to_tag_by_name(short_name: str) -> str:
+    def _get_path_to_tag_txt_by_name(short_name: str) -> str:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_TXT, f'{short_name}_tags.txt')
         return final_path
     
     @staticmethod
     def _save_tags_txt(short_name : str, tags_txt : str,
                         PATH_TO_TAGS_TXT : str = PATH_TO_TAGS_TXT):
-        path_to_tag_txt_new_file = ChatGPT._get_path_to_tag_by_name(short_name)
+        path_to_tag_txt_new_file = ChatGPT._get_path_to_tag_txt_by_name(short_name)
         file = open(path_to_tag_txt_new_file, 'w', encoding="utf-8")
         file.write(tags_txt)
     
     @staticmethod
     def _read_tags_txt_from_file(short_name : str) -> Union[str, None]: 
-        path_to_tag_txt_file = ChatGPT._get_path_to_tag_by_name(short_name)
+        path_to_tag_txt_file = ChatGPT._get_path_to_tag_txt_by_name(short_name)
         try:
             file = open(path_to_tag_txt_file, 'r', encoding="utf-8")
             tags_txt = file.read()
             return tags_txt
         except:
             return None
-
+    ## __TAG_TXT
     
+    ## JSON
+    @staticmethod
+    def _get_path_to_tag_json_by_name(short_name: str, path_to_tags_json : str = PATH_TO_TAGS_JSON) -> str:
+        final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), path_to_tags_json, f'{short_name}_tags.json')
+        return final_path
+    
+    @staticmethod
+    def _save_tags_json_to_file(short_name : str, tags : Union[List[Tag], Context], 
+                                path_to_tags_json : str = PATH_TO_TAGS_JSON, 
+                                verbose : bool = False) -> None:
+        result_context = tags
+        if type(tags) != Context:
+            result_context = Context(tags=tags)
+        absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
+                                                            path_to_tags_json=path_to_tags_json)
+        result_context._save_context_json(absolute_path=absolute_path)
+        if verbose:
+            print(f"[\*]{short_name} is downloaded -> {absolute_path} [*/]")
+
+    ## __JSON
 
     # __READ_WRITE_TAGS
 
@@ -107,19 +130,30 @@ class ChatGPT:
         return tags_txt
 
     # __WORK_WITH_CHAT_GPT
+    
+    # GENERATE_UNIQUE_TAG_ID 
+    def _get_unique_tag_id(self):
+        unique_tag_id = self.max_id
+        self.max_id += 1
+        return unique_tag_id
+
+    # __GENERATE_UNIQUE_TAG_ID
 
     # PROCESSING_TAGS
-    @staticmethod
-    def _tags_txt_to_tags(tags_txt : str) -> List[Tag]:
+    def _tags_txt_to_tags(self, tags_txt : str) -> Dict[int, Tag]:
         tags_txt_list =  tags_txt.strip('.').strip().split(',')
-        tags_list = []
+        tags_dict = dict()
         for tag_txt in tags_txt_list:
             result_tag_txt = tag_txt.strip()
             # id and type : future - maybe need to procced after generate all tags
-            tag = Tag(id=-1, title=result_tag_txt, type=-1)
-            tags_list.append(tag)
+            # tag = Tag(id=-1, title=result_tag_txt, type=-1)
+            tag = Tag(id=self._get_unique_tag_id(), title=result_tag_txt, type=-1)
+            tags_dict[tag.id] = tag
 
-        return tags_list
+        return tags_dict   
     
+
+
+
 
     # __PROCESSING_TAGS
