@@ -179,13 +179,14 @@ class ChatGPT:
         return courses_list
     
     @staticmethod 
-    def  read_all_courses_json_to_courses() -> List[Course]:
-        courses_list = []
+    def  read_all_courses_json_to_courses() -> Dict[CourseShortName, Course]:
+        courses_dict = dict()
         for course_file_json_name in os.listdir(ChatGPT._get_path_to_courses_json_dir()):
             # short_name.json
-            short_name, _ = course_file_json_name.split('.')
-            path_to_course_json_file = ChatGPT._get_path_to_courses_json_by_name(short_name=short_name)
+            short_name_with_tags, _ = course_file_json_name.split('.')
+            path_to_course_json_file = ChatGPT._get_path_to_courses_json_by_name(short_name=short_name_with_tags)
             
+            short_name = short_name_with_tags.split('_')[0]
             try:
                 
                 course_context_json = Context._load_context_json_from_file_json(absolute_path=path_to_course_json_file)
@@ -196,11 +197,11 @@ class ChatGPT:
                                 description="Context already ready!",
                                 context=course_context)
 
-                courses_list.append(course)
+                courses_dict[course.short_name] = course
             except IOError as e:
                 print(f"ChatGPT.read_all_courses_txt_to_courses: {course_file_json_name} do not open! e={e}\n")
 
-        return courses_list
+        return courses_dict
 
     ## __COURSES
 
@@ -210,18 +211,19 @@ class ChatGPT:
     ## SINGLE_WORK
     @staticmethod
     def _get_text_tags_from_course_per_api_chatGPT(course_describe : str, context : str,
+                                                   short_name : CourseShortName,
                                                    verbose : bool = True) -> str:
         messages = [ {"role" : "assistant", "content": context },
                 {"role": "user", "content": course_describe} ]
 
         if verbose:
-            print("[\*] ChatGPT request starting !")
+            print(f"[\*] ChatGPT request for {short_name} starting !")
         completion = openai.ChatCompletion.create(
             model= ChatGPT.CHATGPT_MODEL,
             messages=messages
         )
         if verbose:
-            print("ChatGPT request is finished! [*/]")
+            print(f"ChatGPT request for {short_name} is finished! [*/]")
 
         return completion.choices[0].message.content
     
@@ -231,7 +233,8 @@ class ChatGPT:
         
         
         tags_txt = ChatGPT._get_text_tags_from_course_per_api_chatGPT(course_describe=course.description,
-                                                           context=context)
+                                                           context=context,
+                                                           short_name=course.short_name)
         if is_save:
             if another_name_for_course is not None:
                 ChatGPT._save_tags_txt(short_name=another_name_for_course, tags_txt=tags_txt)
@@ -304,17 +307,17 @@ class ChatGPT:
 
     @staticmethod
     def _load_and_union_tags_by_courses(path_to_tags_json : str = PATH_TO_TAGS_JSON) -> Dict[TagTitle, Tag]:
-        courses_list = ChatGPT.read_all_courses_json_to_courses()
+        courses_dict = ChatGPT.read_all_courses_json_to_courses()
         # pprint.pprint(f"ChatGPT._load_and_union_tags_by_courses: courses_list={courses_list}")
 
         tags_dict = dict()
-        for course in courses_list:
+        for course_short_name in courses_dict:
 
-            for tag_title in course.context.context:
+            for tag_title in courses_dict[course_short_name].context.context:
                 if tag_title in tags_dict:
                     # This is tag already existed
                     continue
-                tags_dict[tag_title] = course.context.context[tag_title]
+                tags_dict[tag_title] = courses_dict[course_short_name].context.context[tag_title]
         
         return tags_dict
     

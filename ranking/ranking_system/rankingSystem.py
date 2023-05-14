@@ -1,15 +1,16 @@
 from typing import Callable, Union, List, Tuple, Dict
-from .struct_data.aliases import TagId, TagTitle
+from struct_data.aliases import TagId, TagTitle, CourseShortName
 
-from .struct_data.tag import Tag
-from .struct_data.context import Context
-from .struct_data.user import User
-from .struct_data.course import Course
+from struct_data.tag import Tag
+from struct_data.context import Context
+from struct_data.user import User
+from struct_data.course import Course
 
-from .simple_data.simpleCourses import simple_courses
-from .simple_data.simpleUsers import simple_users
-from .simple_data.simpleTags import simple_tags
+from simple_data.simpleCourses import simple_courses
+from simple_data.simpleUsers import simple_users
+from simple_data.simpleTags import simple_tags
 
+from model_text_to_tags.chatGPT.chatGPT import ChatGPT
 
 
 # algorithms
@@ -162,20 +163,28 @@ class RankingSystem:
     ## __OFFER_TAGS_WITHOUT_USER_TEXT
     # __TOP_TAGS_FOR_SNIPPET
 
-    # GENERATE_TAGS_FOR_COURSES
+    # GET_TAGS_FOR_COURSES
+    # @staticmethod
+    # def _get_courses_tags() -> Dict[]
+
     @staticmethod
-    def _genenerate_tags_from_description_by_chatGPT(course : Course,
-                                                    context_in_line : str = None) -> List[Tag]:
-        pass
-    
-    def generate_tags_for_courses(self, gen_tags_func : Callable[[Course], List[Tag]]):
-        """Курсы должны быть уже загружены в класс в self.courses с пустым контекстом, 
-        здесь будем его преподготавливать и заполнять. 
-
-        Возможно кластеризовать [если будет проблема с одинаковыми тегами по смыслу] 
-        """
+    def _get_all_tags(model_name: str = "ChatGPT") -> Dict[TagTitle, Tag]:
+        model = None
+        if model_name == "ChatGPT":
+            model = ChatGPT()
         
-        pass
+        all_tags = model.load_all_tags()
 
+        return all_tags
+    
+    @staticmethod
+    def _get_all_courses(model_name: str = "ChatGPT") -> List[Course]:
+        model = None
+        if model_name == "ChatGPT":
+            model = ChatGPT()
+        
+        courses_list = model.read_all_courses_json_to_courses()
 
-    # __GENERATE_TAGS_FOR_COURSES
+        return courses_list
+
+    # __GET_TAGS_FOR_COURSES
