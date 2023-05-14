@@ -1,4 +1,4 @@
-from typing import Callable, Union, List, Tuple
+from typing import Callable, Union, List, Tuple, Dict
 from .struct_data.tag_id import TagId
 
 from .struct_data.tag import Tag
@@ -19,9 +19,9 @@ class RankingSystem:
     # весь context от user и course  
     # Поэтому, в будущем нужно будет кешировать запрос к курсам 
 
-    def __init__(self, users : list[User] = None,
-                  courses : list[Course] = None,
-                  tags : dict[TagId, Tag] = None) -> None:
+    def __init__(self, users : List[User] = None,
+                  courses : List[Course] = None,
+                  tags : Dict[TagId, Tag] = None) -> None:
         self.users = users
         self.courses = courses
         self.tags = tags
@@ -38,7 +38,7 @@ class RankingSystem:
         # try except
         self.courses = self._get_simple_courses()
 
-    def _get_courses(self) -> list[Course]:
+    def _get_courses(self) -> List[Course]:
         return self.courses
     
     def _print_courses(self):
@@ -58,7 +58,7 @@ class RankingSystem:
         # try except
         self.users = self._get_simple_users()
 
-    def _get_users(self) -> list[User]:
+    def _get_users(self) -> List[User]:
         return self.users
     
     def _print_users(self):
@@ -78,7 +78,7 @@ class RankingSystem:
         # try except
         self.tags = self._get_simple_tags()
     
-    def _get_tags(self) -> dict[TagId, Tag]:
+    def _get_tags(self) -> Dict[TagId, Tag]:
         return self.tags
 
     def _print_tags(self):
@@ -150,14 +150,14 @@ class RankingSystem:
         return [res[1] for res in result], [res[0] for res in result]
     ## __TEXT_TO_TAG
 
-    ## OFFER_TAGS_WITHOUT_TEXT
+    ## OFFER_TAGS_WITHOUT_USER_TEXT
     def get_top_suitable_tags_by_context(self, user : User, 
                                          count : int = 20) -> Tuple[List[Tag], List[Union[int, float]]]:
         # TODO
  
         pass
 
-    ## __OFFER_TAGS_WITHOUT_TEXT
+    ## __OFFER_TAGS_WITHOUT_USER_TEXT
     # __TOP_TAGS_FOR_SNIPPET
 
     # GENERATE_TAGS_FOR_COURSES

@@ -4,18 +4,20 @@ import os
 # root general module in ranking_system 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from typing import List, Union, Dict
-from struct_data.tag_id import TagId
 
 # secrets
 import project_secrets_local
 
 
+from typing import List, Union, Dict
 # strcuct data
 from struct_data.tag import Tag
 from struct_data.course import Course
 from struct_data.context import Context
 from struct_data.user import User
+# alias
+from struct_data.tag_id import TagId
+from struct_data.courseShortName import courseShortName
 
 
 class ChatGPT:
@@ -84,13 +86,32 @@ class ChatGPT:
                                 path_to_tags_json : str = PATH_TO_TAGS_JSON, 
                                 verbose : bool = False) -> None:
         result_context = tags_dict
-        if type(tags_dict) != Context:
+        if type(tags_dict) == Dict[TagId, Tag]:
             result_context = Context(tags=tags_dict)
+        elif type(tags_dict) == Context:
+            pass
+        else:
+            raise f"ChatGPT._save_tags_json_to_file type(tags_dict)={type(tags_dict)}!= Union[Dict[TagId, Tag], Context]"
+
         absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
                                                             path_to_tags_json=path_to_tags_json)
         result_context._save_context_json(absolute_path=absolute_path)
         if verbose:
             print(f"[\*]{short_name} is downloaded -> {absolute_path} [*/]")
+
+    @staticmethod
+    def _load_tags_from_tags_json_file(short_name : str, 
+                                    path_to_tags_json : str = PATH_TO_TAGS_JSON, 
+                                    verbose : bool = False) -> Context:
+        absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
+                                                            path_to_tags_json=path_to_tags_json)
+        
+        context_json = Context._load_context_from_json(absolute_path=absolute_path)
+
+        context = Context._json_to_context(context_json=context_json)
+
+        return context
+
 
     @staticmethod
     def _is_exists_tags_json(short_name : str):
@@ -104,12 +125,22 @@ class ChatGPT:
     def _get_path_to_courses_txt_dir() -> str:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_COURSES_DIR)
         return final_path
+    
+    @staticmethod
+    def _get_path_to_courses_json_dir() -> str:
+        final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_JSON)
+        return final_path
 
     @staticmethod
     def _get_path_to_courses_txt_by_name(short_name: str) -> str:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_COURSES_DIR, f'{short_name}.txt')
         return final_path
     
+    @staticmethod
+    def _get_path_to_courses_json_by_name(short_name: str) -> str:
+        final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_JSON, f'{short_name}.json')
+        return final_path
+
     @staticmethod
     def read_all_courses_txt_to_courses() -> List[Course]:
         """
@@ -133,6 +164,28 @@ class ChatGPT:
 
         return courses_list
     
+    @staticmethod 
+    def read_all_courses_json_to_courses() -> List[Course]:
+        courses_list = []
+        for course_file_json_name in os.listdir(ChatGPT._get_path_to_courses_json_dir()):
+            # short_name.json
+            short_name, _ = course_file_json_name.split('.')
+            path_to_course_json_file = ChatGPT._get_path_to_courses_json_by_name(short_name=short_name)
+            
+            try:
+                
+                course_context_json = Context._load_context_json_from_file_json(absolute_path=path_to_course_json_file)
+                course_context = Context._json_to_context(context_json=course_context_json)
+                course = Course(short_name=short_name,
+                                description="Context already ready!",
+                                context=course_context)
+
+                courses_list.append(course)
+            except IOError as e:
+                print(f"ChatGPT.read_all_courses_txt_to_courses: {course_file_json_name} do not open! e={e}\n")
+
+        return courses_list
+
     ## __COURSES
 
     # __READ_WRITE_TAGS
@@ -206,8 +259,10 @@ class ChatGPT:
             
             context_list.append(Context(tags=tags_dict))
         return context_list
-                
-        
+    
+    @staticmethod
+    def load_tags_by_courses(path_to_tags_json : str = PATH_TO_TAGS_JSON) -> List[Course]:
+        pass
 
     ## __MULTIPLY_WORK
     # __WORK_WITH_CHAT_GPT
@@ -234,7 +289,8 @@ class ChatGPT:
         return tags_dict   
     
 
-
+    def _union_all_tags(courses : List[Course]) -> Dict[TagId, Tag]:
+        pass
 
 
     # __PROCESSING_TAGS
