@@ -22,7 +22,7 @@ class Context:
         # print(f"Context._context_to_json self.context={self.context}")
 
         for tag_title in context.context:
-            context_json[tag_title] = context.context[tag_title]._tag_to_json()
+            context_json[tag_title] = Tag._tag_to_json(context.context[tag_title])
         
         return context_json
     
@@ -46,8 +46,12 @@ class Context:
         return context_json
     
     @staticmethod
-    def _json_to_context(context_json):
-        return Context(context_json)
+    def _json_to_context(context_json : Dict) -> "Context":
+        tags_dict = dict()
+        for tag_title in context_json:
+            tags_dict[tag_title] = Tag._json_to_tag(context_json[tag_title])
+        
+        return Context(tags=tags_dict)
 
 
     # __READ_WRITE_CONTEXT

@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from .context import Context 
+from .aliases import CourseShortName
 
 @dataclass
 class Course:
-    short_name : str # PK  
+    short_name : CourseShortName # PK  
     description : str
     id : int = None
     field_of_knowledge : str = None
