@@ -1,8 +1,13 @@
+import os, sys
+# add ranking directory to sys.path
+sys.path.append(os.path.dirname(__file__))
+
+
 from typing import Callable, Union, List, Tuple, Dict
-from struct_data.aliases import TagId, TagTitle, CourseShortName
+from struct_data.aliases import TagId, TagTitle, CourseShortName, ChatBotId
 
 from struct_data.tag import Tag
-from struct_data.context import Context
+# from struct_data.context import Context
 from struct_data.user import User
 from struct_data.course import Course
 
@@ -22,12 +27,12 @@ class RankingSystem:
     # весь context от user и course  
     # Поэтому, в будущем нужно будет кешировать запрос к курсам 
 
-    def __init__(self, users : List[User] = None,
-                  courses : List[Course] = None,
+    def __init__(self, users : Dict[ChatBotId, User] = None,
+                  courses : Dict[CourseShortName, Course] = None,
                   tags : Dict[TagTitle, Tag] = None) -> None:
-        self.users = users
-        self.courses = courses
-        self.tags = tags
+        self.users :  Dict[ChatBotId, User] = users
+        self.courses : Dict[CourseShortName, Course] = courses
+        self.tags : Dict[TagTitle, Tag] = tags
 
     # COURSES
     def _get_simple_courses(self):
@@ -35,13 +40,13 @@ class RankingSystem:
 
     def update_courses(self):
         # обращение к базе данных
-        # нужно получить list[Course]
+        # нужно получить Dict[ShortNameCourse, Course]
         
         # change on request to BD
         # try except
         self.courses = self._get_simple_courses()
 
-    def _get_courses(self) -> List[Course]:
+    def _get_courses(self) -> Dict[CourseShortName, Course]:
         return self.courses
     
     def _print_courses(self):
@@ -66,8 +71,8 @@ class RankingSystem:
     
     def _print_users(self):
         print("[\ users]")
-        for users in self.users:
-            print(users)
+        for _, user in self.users.items():
+            print(user)
         print("[users /]")
 
     # __USERS
@@ -95,15 +100,15 @@ class RankingSystem:
     # TOP_MATH
     def _calc_distance_between_user_and_course(self, user : User, course : Course):
         distance = 0
-        for tag_title in user.context.context:
-            if tag_title in course.context.context:
+        for tag_title in user.context:
+            if tag_title in course.context:
                 distance += 1
 
         return distance
     
     def get_top_match_user_and_course(self, user: User, count : int = 10):
         list_dist_and_course = []
-        for course in self.courses:
+        for course_short_name, course in self.courses.items():
             distance = self._calc_distance_between_user_and_course(user, course)
             list_dist_and_course.append((distance, course))
         
@@ -117,7 +122,7 @@ class RankingSystem:
     # __TOP_MATH
 
     # TOP_TAGS_FOR_SNIPPET 
-    ## TEXT_TO_TAG
+    ## DEFINE_DISTANCE
     @staticmethod
     def _levenshtain_distance(s1 : str, s2 : str) -> int:
         """
@@ -135,9 +140,11 @@ class RankingSystem:
         """
         
         return 1. - Levenshtein.ratio(s1, s2)
+    ## __DEFINE_DISTANCE
     
+    ## TAG_TEXT_TO_TAG
     def get_top_suitable_tags_by_text(self, req : str, metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
-                         count : int = 20) -> Tuple[List[Tag], List[Union[int, float]]] :
+                         max_count : int = 20) -> Tuple[List[Tag], List[Union[int, float]]] :
         
         metric_and_tag_list = []
 
@@ -147,11 +154,29 @@ class RankingSystem:
 
         metric_and_tag_list = sorted(metric_and_tag_list, key=lambda x: x[0], reverse=False)
         
-        result_count = min(count, len(metric_and_tag_list))
+        result_count = min(max_count, len(metric_and_tag_list))
         result = metric_and_tag_list[:result_count]
 
         return [res[1] for res in result], [res[0] for res in result]
-    ## __TEXT_TO_TAG
+    ## __TAG_TEXT_TO_TAG
+
+    ## COURSE_TEXT_TO_COURSE
+    def get_top_suitable_courses_by_text(self, req : str, metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
+                         max_count : int = 20) -> Tuple[List[Course], List[Union[int, float]]] :
+        
+        metric_and_course_list = []
+
+        for course_short_name, course in self.courses.items():
+            metric = metric_func(req, course.full_name)
+            metric_and_course_list.append((metric, course))
+
+        metric_and_course_list = sorted(metric_and_course_list, key=lambda x: x[0], reverse=False)
+        
+        result_count = min(max_count, len(metric_and_course_list))
+        result = metric_and_course_list[:result_count]
+
+        return [res[1] for res in result], [res[0] for res in result]
+    ## __COURSE_TEXT_TO_COURSE
 
     ## OFFER_TAGS_WITHOUT_USER_TEXT
     def get_top_suitable_tags_by_context(self, user : User, 

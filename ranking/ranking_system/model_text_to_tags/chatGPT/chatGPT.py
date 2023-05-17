@@ -14,20 +14,20 @@ from typing import List, Union, Dict
 # strcuct data
 from struct_data.tag import Tag
 from struct_data.course import Course
-from struct_data.context import Context
+from struct_data.io_context import IO_Context
 from struct_data.user import User
 # alias
-from struct_data.aliases import TagTitle, CourseShortName
+from struct_data.aliases import TagTitle, CourseShortName, StrPath
 
 
 
 class ChatGPT:
     CHATGPT_MODEL : str  = "gpt-3.5-turbo"
-    PATH_TO_CONTEXT_FILE : str = os.path.join("data", "context.txt")
-    PATH_TO_COURSES_DIR : str = os.path.join("data", "courses_txt")
-    PATH_TO_TAGS_TXT : str = os.path.join("data", "saved_data", "tags_txt")
-    PATH_TO_TAGS_JSON : str = os.path.join("data", "saved_data", "tags_json")
-    PATH_TO_ALL_TAGS_JSON : str = os.path.join("data", "saved_data", "all_tags_json")
+    PATH_TO_CHATGPT_CONTEXT_FILE : StrPath = os.path.join("data", "context.txt")
+    PATH_TO_COURSES_DIR : StrPath = os.path.join("data", "courses_txt")
+    PATH_TO_TAGS_TXT : StrPath = os.path.join("data", "saved_data", "tags_txt")
+    PATH_TO_TAGS_JSON : StrPath = os.path.join("data", "saved_data", "tags_json")
+    PATH_TO_ALL_TAGS_JSON : StrPath = os.path.join("data", "saved_data", "all_tags_json")
 
     def __init__(self):
         # Я так понимаю, при нескольких ключах можно этот параметр просто менять
@@ -35,8 +35,8 @@ class ChatGPT:
         self.max_id = 1
 
     @staticmethod
-    def get_context(path_to_file=PATH_TO_CONTEXT_FILE):
-        path_to_curdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_CONTEXT_FILE)
+    def get_chatGPT_context(path_to_file=PATH_TO_CHATGPT_CONTEXT_FILE):
+        path_to_curdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_CHATGPT_CONTEXT_FILE)
 
         file = open(path_to_curdir, "r", encoding="utf-8")
         return file.read()
@@ -45,13 +45,13 @@ class ChatGPT:
     # READ_WRITE_TAGS
     ## TAGS_TXT
     @staticmethod
-    def _get_path_to_tag_txt_by_name(short_name: CourseShortName) -> str:
+    def _get_path_to_tag_txt_by_name(short_name: CourseShortName) -> StrPath:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_TXT, f'{short_name}_tags.txt')
         return final_path
     
     @staticmethod
     def _save_tags_txt(short_name : CourseShortName, tags_txt : str,
-                        PATH_TO_TAGS_TXT : str = PATH_TO_TAGS_TXT):
+                        PATH_TO_TAGS_TXT : StrPath = PATH_TO_TAGS_TXT):
         path_to_tag_txt_new_file = ChatGPT._get_path_to_tag_txt_by_name(short_name)
         file = open(path_to_tag_txt_new_file, 'w', encoding="utf-8")
         file.write(tags_txt)
@@ -79,16 +79,14 @@ class ChatGPT:
     
     ## TAGS_JSON
     @staticmethod
-    def _get_path_to_tag_json_by_name(short_name: CourseShortName, path_to_tags_json : str = PATH_TO_TAGS_JSON) -> str:
+    def _get_path_to_tag_json_by_name(short_name: CourseShortName, path_to_tags_json : StrPath = PATH_TO_TAGS_JSON) -> StrPath:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), path_to_tags_json, f'{short_name}_tags.json')
         return final_path
     
     @staticmethod
-    def _save_tags_json_to_file(short_name : CourseShortName, tags_dict : Dict[TagTitle, Tag], 
-                                path_to_tags_json : str = PATH_TO_TAGS_JSON, 
+    def _save_tags_to_json(short_name : CourseShortName, tags_dict : Dict[TagTitle, Tag], 
+                                path_to_tags_json : StrPath = PATH_TO_TAGS_JSON, 
                                 verbose : bool = False) -> None:
-        result_context = Context(tags=tags_dict)
-        # print(f"ChatGPT._save_tags_json_to_file: type(tags_dict)={type(tags_dict)}")
 
         # if type(tags_dict) == Dict[TagTitle, Tag]:
         #     result_context = Context(tags=tags_dict)
@@ -101,26 +99,24 @@ class ChatGPT:
 
         absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
                                                             path_to_tags_json=path_to_tags_json)
-        Context._save_context_json(absolute_path=absolute_path, context=result_context)
+        IO_Context._save_tags_to_json(absolute_path=absolute_path, tags=tags_dict)
         if verbose:
             print(f"[\*]{short_name} is downloaded -> {absolute_path} [*/]")
 
     @staticmethod
     def _load_tags_from_tags_json_file(short_name : CourseShortName, 
-                                    path_to_tags_json : str = PATH_TO_TAGS_JSON, 
-                                    verbose : bool = False) -> Context:
+                                    path_to_tags_json : StrPath = PATH_TO_TAGS_JSON, 
+                                    verbose : bool = False) -> Dict[TagTitle, Tag]:
         absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
                                                             path_to_tags_json=path_to_tags_json)
         
-        context_json = Context._load_context_json_from_file_json(absolute_path=absolute_path)
+        tags = IO_Context._load_tags_from_json(absolute_path=absolute_path)
 
-        context = Context._json_to_context(context_json=context_json)
-
-        return context
+        return tags
 
 
     @staticmethod
-    def _is_exists_tags_json(short_name : CourseShortName):
+    def _is_exists_tags_json(short_name : CourseShortName) -> bool:
         path_to_tag_json = ChatGPT._get_path_to_tag_json_by_name(short_name)
         return os.path.isfile(path_to_tag_json)
     
@@ -136,32 +132,32 @@ class ChatGPT:
 
     ## COURSES
     @staticmethod
-    def _get_path_to_courses_txt_dir() -> str:
+    def _get_path_to_courses_txt_dir() -> StrPath:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_COURSES_DIR)
         return final_path
     
     @staticmethod
-    def _get_path_to_courses_json_dir() -> str:
+    def _get_path_to_courses_json_dir() -> StrPath:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_JSON)
         return final_path
 
     @staticmethod
-    def _get_path_to_courses_txt_by_name(short_name: CourseShortName) -> str:
+    def _get_path_to_courses_txt_by_name(short_name: CourseShortName) -> StrPath:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_COURSES_DIR, f'{short_name}.txt')
         return final_path
     
     @staticmethod
-    def _get_path_to_courses_json_by_name(short_name: CourseShortName) -> str:
+    def _get_path_to_courses_json_by_name(short_name: CourseShortName) -> StrPath:
         final_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ChatGPT.PATH_TO_TAGS_JSON, f'{short_name}.json')
         return final_path
 
     @staticmethod
-    def read_all_courses_txt_to_courses() -> List[Course]:
+    def read_all_courses_txt_to_courses() -> Dict[CourseShortName, Course]:
         """
         return : only Courses(description, short_name)
         """
 
-        courses_list = []
+        courses_dict : Dict[CourseShortName, Course] = dict()
         for course_file_name in os.listdir(ChatGPT._get_path_to_courses_txt_dir()):
             # short_name.txt
             short_name, _ = course_file_name.split('.')
@@ -172,14 +168,15 @@ class ChatGPT:
                     course = Course(short_name=short_name,
                                     description=course_file.read())
 
-                    courses_list.append(course)
+                    courses_dict[short_name] = course
+                    # courses_list.append(course)
             except IOError as e:
                 print(f"ChatGPT.read_all_courses_txt_to_courses: {course_file_name} do not open! e={e}\n")
 
-        return courses_list
+        return courses_dict
     
     @staticmethod 
-    def  read_all_courses_json_to_courses() -> Dict[CourseShortName, Course]:
+    def read_all_courses_json_to_courses() -> Dict[CourseShortName, Course]:
         courses_dict = dict()
         for course_file_json_name in os.listdir(ChatGPT._get_path_to_courses_json_dir()):
             # short_name.json
@@ -189,15 +186,13 @@ class ChatGPT:
             short_name = short_name_with_tags.split('_')[0]
             try:
                 
-                course_context_json = Context._load_context_json_from_file_json(absolute_path=path_to_course_json_file)
+                course_tags = IO_Context._load_tags_from_json(absolute_path=path_to_course_json_file)
                 # print(f"ChatGPT.read_all_courses_json_to_courses: course_context_json={course_context_json}")
-                course_context = Context._json_to_context(context_json=course_context_json)
-                # print(f"ChatGPT.read_all_courses_json_to_courses: course_context={course_context}")
                 course = Course(short_name=short_name,
                                 description="Context already ready!",
-                                context=course_context)
+                                context=course_tags)
 
-                courses_dict[course.short_name] = course
+                courses_dict[short_name] = course
             except IOError as e:
                 print(f"ChatGPT.read_all_courses_txt_to_courses: {course_file_json_name} do not open! e={e}\n")
 
@@ -210,10 +205,10 @@ class ChatGPT:
     # WORK_WITH_CHAT_GPT
     ## SINGLE_WORK
     @staticmethod
-    def _get_text_tags_from_course_per_api_chatGPT(course_describe : str, context : str,
+    def _get_text_tags_from_course_per_api_chatGPT(course_describe : str, chatGPT_context : str,
                                                    short_name : CourseShortName,
                                                    verbose : bool = True) -> str:
-        messages = [ {"role" : "assistant", "content": context },
+        messages = [ {"role" : "assistant", "content": chatGPT_context },
                 {"role": "user", "content": course_describe} ]
 
         if verbose:
@@ -228,12 +223,12 @@ class ChatGPT:
         return completion.choices[0].message.content
     
     @staticmethod
-    def _get_and_save_tags_txt_for_course_by_descr(course : Course, context : str,
+    def _get_and_save_tags_txt_for_course_by_descr(course : Course, chatGPT_context : str,
                                                     another_name_for_course: str = None, is_save: bool = True) -> str:
         
         
         tags_txt = ChatGPT._get_text_tags_from_course_per_api_chatGPT(course_describe=course.description,
-                                                           context=context,
+                                                           chatGPT_context=chatGPT_context,
                                                            short_name=course.short_name)
         if is_save:
             if another_name_for_course is not None:
@@ -246,17 +241,16 @@ class ChatGPT:
     ## __SINGLE_WORK
 
     ## MULTIPLY_WORK
-    def create_and_save_tags_by_courses(self, courses : List[Course], force : bool = False,
+    def create_and_save_tags_by_courses(self, courses : Dict[CourseShortName, Course], force : bool = False,
                                         tags_txt_is_necessarily : bool = True,
-                                        verbose : bool = False) -> List[Union[Context, None]]:
+                                        verbose : bool = False) -> Dict[CourseShortName, Course]:
         """
         force: False - without rewrite existed files 
         
         maybe return mask which create or not
         """
-        chatGPT_context = ChatGPT.get_context()
-        context_list = []
-        for course in courses:
+        chatGPT_context = ChatGPT.get_chatGPT_context()
+        for _, course in courses.items():
             is_exists_tags_txt =  ChatGPT._is_exists_tags_txt(course.short_name)
             is_exists_tags_json = ChatGPT._is_exists_tags_json(course.short_name)
 
@@ -264,7 +258,7 @@ class ChatGPT:
 
             tags_txt = None
             if force or (tags_txt_is_necessarily and not is_exists_tags_txt):
-                tags_txt = ChatGPT._get_and_save_tags_txt_for_course_by_descr(course=course, context=chatGPT_context)
+                tags_txt = ChatGPT._get_and_save_tags_txt_for_course_by_descr(course=course, chatGPT_context=chatGPT_context)
             
             if tags_txt is None:
                 tags_txt = ChatGPT._read_tags_txt_from_file(course.short_name)  
@@ -272,12 +266,13 @@ class ChatGPT:
             tags_dict = self._tags_txt_to_tags(tags_txt=tags_txt)
 
             if force or not is_exists_tags_json:
-                ChatGPT._save_tags_json_to_file(short_name=course.short_name,
+                ChatGPT._save_tags_to_json(short_name=course.short_name,
                                                 tags_dict=tags_dict,
                                                 verbose=verbose)
             
-            context_list.append(Context(tags=tags_dict))
-        return context_list
+            courses[course.short_name].context = tags_dict
+
+        return courses
 
 
     ## __MULTIPLY_WORK
@@ -306,18 +301,18 @@ class ChatGPT:
         return tags_dict   
 
     @staticmethod
-    def _load_and_union_tags_by_courses(path_to_tags_json : str = PATH_TO_TAGS_JSON) -> Dict[TagTitle, Tag]:
+    def _load_and_union_tags_by_courses(path_to_tags_json : StrPath = PATH_TO_TAGS_JSON) -> Dict[TagTitle, Tag]:
         courses_dict = ChatGPT.read_all_courses_json_to_courses()
         # pprint.pprint(f"ChatGPT._load_and_union_tags_by_courses: courses_list={courses_list}")
 
-        tags_dict = dict()
-        for course_short_name in courses_dict:
+        tags_dict : Dict[TagTitle, Tag] = dict()
+        for course_short_name, course in courses_dict.items():
 
-            for tag_title in courses_dict[course_short_name].context.context:
+            for tag_title, tag in course.context.items():
                 if tag_title in tags_dict:
                     # This is tag already existed
                     continue
-                tags_dict[tag_title] = courses_dict[course_short_name].context.context[tag_title]
+                tags_dict[tag_title] = tag
         
         return tags_dict
     
@@ -330,8 +325,8 @@ class ChatGPT:
 
     @staticmethod
     def load_all_tags() -> Dict[TagTitle, Tag]:
-        context_tags = ChatGPT._load_tags_from_tags_json_file(short_name="all_tags",
+        tags = ChatGPT._load_tags_from_tags_json_file(short_name="all_tags",
                                                 path_to_tags_json=ChatGPT.PATH_TO_ALL_TAGS_JSON)
-        return context_tags.context
+        return tags
 
     # __PROCESSING_TAGS

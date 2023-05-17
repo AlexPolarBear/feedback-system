@@ -1,6 +1,9 @@
 from dataclasses import dataclass
-from .context import Context 
-from .aliases import CourseShortName
+# from .context import Context 
+from .tag import Tag
+from .aliases import CourseShortName, TagTitle
+
+from typing import Dict
 
 @dataclass
 class Course:
@@ -12,7 +15,7 @@ class Course:
     size : str = None
     lecturer_id : int = None
     year : int = None
-    context : Context = None
+    context : Dict[TagTitle, Tag] = None
 
     def __post_init__(self):
         pass

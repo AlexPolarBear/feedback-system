@@ -1,8 +1,9 @@
 from struct_data.tag import Tag
-from struct_data.context import Context
+# from struct_data.context import Context
 from struct_data.course import Course
 
-simple_courses = [
+simple_courses = {
+    "CommAlg":
     Course(
     id=1,
     field_of_knowledge="Алгебра",
@@ -29,7 +30,7 @@ H. Matsumura, Commutative algebra, 2nd ed., Benjamin/Cummings Publishing Co., Re
 J.-P. Serre, Local algebra, Springer-Verlag, Berlin Heidelberg New York, 2000.""",
     lecturer_id=1,
     year=2023,
-    context=Context(
+    context=
         {
             "Алгебра" : Tag(id=1, title="Алгебра", type=0),
             "Группы" : Tag(id=2, title="Группы", type=5),
@@ -38,5 +39,4 @@ J.-P. Serre, Local algebra, Springer-Verlag, Berlin Heidelberg New York, 2000.""
             "Многочлены" : Tag(id=5, title="Многочлены", type=5),
         }
     )
-    )
-]
+}
