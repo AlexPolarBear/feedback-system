@@ -1,9 +1,9 @@
 from struct_data.tag import Tag
 from struct_data.user import User
 
-simple_users = { 23256 : 
+simple_users = { 1 : 
     User(
-    chat_id=23256,
+    chat_id=1,
     name="Komnatskiy Aleksandr",
     email="st123224@gmail.com",
     direction="НОД",

@@ -88,15 +88,6 @@ class ChatGPT:
                                 path_to_tags_json : StrPath = PATH_TO_TAGS_JSON, 
                                 verbose : bool = False) -> None:
 
-        # if type(tags_dict) == Dict[TagTitle, Tag]:
-        #     result_context = Context(tags=tags_dict)
-        # elif type(tags_dict) == Context:
-        #     pass
-        # else:
-        #     print(f"ChatGPT._save_tags_json_to_file type(tags_dict)={type(tags_dict)}!= Union[Dict[TagTitle, Tag], Context]")
-        #     # raise f"ChatGPT._save_tags_json_to_file type(tags_dict)={type(tags_dict)}!= Union[Dict[TagTitle, Tag], Context]"
-        #     raise AssertionError
-
         absolute_path = ChatGPT._get_path_to_tag_json_by_name(short_name=short_name,
                                                             path_to_tags_json=path_to_tags_json)
         IO_Context._save_tags_to_json(absolute_path=absolute_path, tags=tags_dict)
@@ -164,6 +155,7 @@ class ChatGPT:
             path_to_course_file = ChatGPT._get_path_to_courses_txt_by_name(short_name=short_name)
 
             try:
+                
                 with open(path_to_course_file, 'r', encoding="utf-8") as course_file:
                     course = Course(short_name=short_name,
                                     description=course_file.read())

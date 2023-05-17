@@ -34,6 +34,12 @@ class RankingSystem:
         self.courses : Dict[CourseShortName, Course] = courses
         self.tags : Dict[TagTitle, Tag] = tags
 
+        # sync data
+        self.update_courses()
+        self.update_tags()
+        self.update_users()
+
+        
     # COURSES
     def _get_simple_courses(self):
         return simple_courses
@@ -106,7 +112,22 @@ class RankingSystem:
 
         return distance
     
-    def get_top_match_user_and_course(self, user: User, count : int = 10):
+    def get_top_relevant_UserCourse(self, chat_bot_id: ChatBotId, max_count : int = 10):
+        if chat_bot_id not in self.users:
+            print(f"Такого юзера={chat_bot_id} нету в базе данных!")
+            self.update_users()
+
+            if chat_bot_id not in self.users:
+                print(f"!!Такого юзера={chat_bot_id} нету в базе данных после обновления!!!!!!")
+                return None, None
+        
+        user = self.users[chat_bot_id]
+
+        list_distCourse = self._get_top_relevant_UserCourse(user=user, max_count=max_count)
+        return list_distCourse
+        
+
+    def _get_top_relevant_UserCourse(self, user: User, max_count : int = 10):
         list_dist_and_course = []
         for course_short_name, course in self.courses.items():
             distance = self._calc_distance_between_user_and_course(user, course)
@@ -114,7 +135,7 @@ class RankingSystem:
         
         list_dist_and_course = sorted(list_dist_and_course, key=lambda x: x[0], reverse=True)
 
-        result_count = min(count, len(list_dist_and_course))
+        result_count = min(max_count, len(list_dist_and_course))
         result = list_dist_and_course[:result_count]
 
         return  [res[1] for res in result], [res[0] for res in result]
@@ -143,13 +164,14 @@ class RankingSystem:
     ## __DEFINE_DISTANCE
     
     ## TAG_TEXT_TO_TAG
-    def get_top_suitable_tags_by_text(self, req : str, metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
-                         max_count : int = 20) -> Tuple[List[Tag], List[Union[int, float]]] :
+    def get_top_suitable_tags_by_text(self, tag_req : str,
+                                       metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
+                                       max_count : int = 20) -> Tuple[List[Tag], List[Union[int, float]]] :
         
         metric_and_tag_list = []
 
         for tag_title in self.tags:
-            metric = metric_func(req, self.tags[tag_title].title)
+            metric = metric_func(tag_req, self.tags[tag_title].title)
             metric_and_tag_list.append((metric, self.tags[tag_title]))
 
         metric_and_tag_list = sorted(metric_and_tag_list, key=lambda x: x[0], reverse=False)
@@ -161,13 +183,14 @@ class RankingSystem:
     ## __TAG_TEXT_TO_TAG
 
     ## COURSE_TEXT_TO_COURSE
-    def get_top_suitable_courses_by_text(self, req : str, metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
-                         max_count : int = 20) -> Tuple[List[Course], List[Union[int, float]]] :
+    def get_top_suitable_courses_by_text(self, course_req : str,
+                                          metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
+                                          max_count : int = 20) -> Tuple[List[Course], List[Union[int, float]]] :
         
         metric_and_course_list = []
 
         for course_short_name, course in self.courses.items():
-            metric = metric_func(req, course.full_name)
+            metric = metric_func(course_req, course.full_name)
             metric_and_course_list.append((metric, course))
 
         metric_and_course_list = sorted(metric_and_course_list, key=lambda x: x[0], reverse=False)
