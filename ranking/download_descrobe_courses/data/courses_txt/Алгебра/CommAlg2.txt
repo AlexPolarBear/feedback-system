@@ -1,0 +1,33 @@
+Commutative algebra 2: regular rings
+A.K. Stavrova
+
+This course is essentially a sequel to the small course “Commutative algebra” taught by A.K. Stavrova in 2019 in Russian and in 2020 in English. It can be taught in English or in Russian, as a small course or a seminar.
+The prerequisites are typically covered in any basic “Commutative algebra” or “Algebraic geometry” course and are roughly equivalent to the contents of the book M.F. Atiyah, I.G. Macdonald, “Introduction to Commutative Algebra” or the first 8 chapters of the book D. Eisenbud, “Commutative Algebra with a View Toward Algebraic Geometry”.
+The course “Commutative algebra 2: regular rings” is an advanced commutative algebra course intended for students specializing in commutative algebra, algebraic geometry, K-theory or related areas of mathematics. The main focus of the course is the notion of a regular ring. The importance of regular rings for algebraic geometry stems from the fact that a point x on an algebraic variety is nonsingular,  or smooth,  if and only if its local ring at x is regular. Examples of regular rings include fields and rings of algebraic integers in number fields. Apart from regular rings, we also study Cohen-Macaulay, Gorenstein and complete intersection rings. 
+
+1.	Filtered and graded rings and modules. Completions of commutative rings and modules (recollections).
+2.	Dimension theory: three equivalent definitions of dimension (recollections). Dimension of modules and affine algebraic varieties. 
+3.	Systems of parameters and parameter ideals. Definition of a regular ring. Normal rings, Serre’s criterion for normality.
+4.	Dimension inequality for homomorphisms of local rings. Dimension of flat extensions.
+5.	Regular sequences and the Koszul complex.
+6.	Depth, codimension and Cohen-Macaulay rings.
+7.	Modules of differentials. Separable algebras. Jacobian criterion for regularity.
+8.	The Auslander—Buchsbaum formula. Regularity and global dimension.
+9.	Stably free modules and factoriality of regular local rings. 
+10.	Gorenstein rings. Complete intersection rings.
+11.	The “miracle flatness” theorem and applications. Generic freeness and generic flatness.
+12.	Complete regular local rings. Cohen structure theorem. 
+13.	Serre’s problem on projective modules. Zariski patching squares. Quillen-Suslin theorem.
+14.	The Bass—Quillen conjecture. Lindel’s lemma. Patching squares involving “analytic isomorphisms”.
+15.	Geometric regularity. Neron—Popescu desingularization (without proof) and its application to the Bass—Quillen conjecture.
+
+Bibliography
+
+A.	D. Eisenbud, Commutative algebra with a view toward algebraic geometry. Springer-Verlag, Berlin Heidelberg New York, 1995.
+B.	H. Matsumura, Commutative ring theory. Cambridge Studies in Advanced Mathematics 8, Cambridge University Press, 1989. 
+C.	J.-P. Serre, Local algebra, Springer-Verlag, Berlin Heidelberg New York, 2000.
+D.	The Stacks project, Chapter 10: Commutative algebra, available online at https://stacks.math.columbia.edu/tag/00AO.
+
+
+
+

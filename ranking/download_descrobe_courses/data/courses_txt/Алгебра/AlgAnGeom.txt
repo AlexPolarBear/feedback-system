@@ -1,0 +1,24 @@
+Algebraic and analytic geometry (GAGA)
+Course of M.V. Bondarko
+1.Algebraic and analytic subspaces.
+2.Sheaves of rings and ringed spaces.  
+3.The sheaf theoretic definition of a manifold. 
+4.Hilbert's Nullstellensatz; Zariski topology. 
+5.Localizations of rings; schemes.
+6.Schemes of finite type over C.
+7.The complex topology on schemes.
+8.The sheaf of analytic functions on an affine scheme.
+9.Coherent algebraic sheaves.
+10.Coherent analytic sheaves.
+11.The analytification of coherent algebraic sheaves.
+12.The statement of GAGA.
+13.Symmetric powers and projective spaces.
+14.Group schemes and geometric invariant theory.
+15.Quotients of schemes.
+16. Sheaf cohomology ; GAGA in terms of cohomology. 
+17.The proofs of GAGA.
+Prerequisites
+Basics of complex analysis, commutative and homological algebra.
+List of literature 
+1. Neeman A., Algebraic and Analytic Geometry, C ambridge University Press; 2007.
+2.  Dimca A. Sheaves in topology. Springer Science & Business Media; 2004.  
