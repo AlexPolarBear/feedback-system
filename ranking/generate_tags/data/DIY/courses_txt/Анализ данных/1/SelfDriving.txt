@@ -1,0 +1,3 @@
+Short course about self-driving cars
+
+https://github.com/yandexdataschool/sdc_course

@@ -1,0 +1,80 @@
+Введение в глубокое обучение
+
+Примерное содержание курса:
+
+1. Логистика курса. Машинное обучение, глубокое обучение. Компьютерное зрение.
+
+2. Классификация изображений (что такое nnets) + необходимые инструменты для этого курса (python(pycharm), numpy, pytorch, учебник по gcloud).
+
+3. Как обучать: функция потерь и оптимизация, обратная пропоганда.
+
+4. Как обучать: представление данных (изображение), нормализация партии, отсев.
+
+5. Что такое свертка + pytorch.
+
+6. Pytorch (тензор, датасеты, cuda, сети на pytorch, cuda) + учебники по pytorch.
+
+7. В kaggle + аппаратное обеспечение.
+
+8. Основные архитектуры.
+
+9. Визуализация и понимание (Feature visualization and inversion Adversarial examples DeepDream and style transfer).
+
+10. Обучение переносу + советы и рекомендации (аугментация, ансамбли + кросс-валидация, смешивание, сглаживание меток + lr_schedulers).
+
+11. Другие проблемы компьютерного зрения (сегментация, обнаружение).
+
+12. Самые популярные задачи на сегодняшний день (распознавание лиц, самопогружение, deepfake, gans).
+
+13. Возможно, некоторый обзор статей.
+
+14. Оптимизация сетей (тензоррт, обрезка, дистилляция знаний).
+
+
+Разработчик программы и преподаватель
+
+Георгий Сурин, инженер по компьютерному зрению / глубокому обучению в Inspector-cloud
+
+suringeorgy1@gmail.com
+
+kaggle.com/formemorte
+
+3 серебряные медали, 1 бронзовая
+
+7-е место на Seismic challenge (https://boosters.pro)
+
+
+
+Deep learning intro
+
+Примерное содержание курса:
+
+1. Course logistic. Machine Learning, Deep learning. Computer vision.
+
+2. Image classification(what is nnets) + needfull tools for this course (python(pycharm), numpy, pytorch, tutorial for gcloud).
+
+3. How to train: loss function and optimization, backpropogation.
+
+4. How to train: data representation (image), batch normalization, dropout.
+
+5. What is convolution + pytorch.
+
+6. Pytorch (tensor, datasets, cuda, nets on pytorch, cuda) + pytorch tutorials.
+
+7. Into kaggle + hardware.
+
+8. The main architectures.
+
+9. Visualizing and Understanding (Feature visualization and inversion Adversarial examples DeepDream and style transfer).
+
+10. Transfer learning + tips and tricks (augmentation, ensembles + cross-validation, mixup, labelsmoothing + lr_schedulers).
+
+11. Another comuter vision problems (segmentation, detection).
+
+12. The most popular tasks today (face recognition, self-diving, deepfake, gans).
+
+13. May be some overview of articles.
+
+14. Optimization nnets (tensorrt, pruning, knowledge distillation).
+
+
