@@ -172,12 +172,12 @@ class IO_RankingSystem:
         return True
     
     @staticmethod
-    def delete_tag_from_user(chat_id : ChatBotId, tag : TagTitle):
+    def delete_tag_from_user(chat_id : ChatBotId, tag_title : TagTitle):
         user = IO_RankingSystem.load_user(chat_id)
         if user is None:
             return False
-        if tag in user.context:
-            del user.context[tag]   
+        if tag_title in user.context:
+            del user.context[tag_title]   
         IO_RankingSystem.save_user(**user.__dict__)
         return True
     

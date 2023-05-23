@@ -28,13 +28,11 @@ class RankingSystem:
     ## update_tags()
     ## update_users()
     ## get_top_relevant_UserCourse
-    ## get_top_relevant_UserCourse
     ## get_top_suitable_tags_by_text
     ## get_top_suitable_tags_by_context
     ## get_top_suitable_courses_by_text
-    ## get_top_suitable_tags_by_context
 
-    
+
     # В целом, нам нужен будет только один запрос 
     # весь context от user и course  
     # Поэтому, в будущем нужно будет кешировать запрос к курсам 
@@ -105,7 +103,7 @@ class RankingSystem:
 
         return distance
     
-    def get_top_relevant_UserCourse(self, chat_id: ChatBotId, max_count : int = 10):
+    def get_top_relevant_UserCourse(self, chat_id: ChatBotId, max_count : int = 10) -> List[CourseJSON]:
         if chat_id not in self.users:
             print(f"Такого юзера={chat_id} нету в базе данных!")
             self.update_users()
