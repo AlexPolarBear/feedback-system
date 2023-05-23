@@ -27,7 +27,7 @@ class IO_RankingSystem:
     PATH_TO_DIR_COURSES_TAGS = os.path.join(PATH_TO_DIR_DATA, "courses_tags")
     PATH_TO_COURSES_TXT = os.path.join(PATH_TO_DIR_DATA, "courses_txt")
     PATH_TO_DIR_ALL_TAGS = os.path.join(PATH_TO_DIR_DATA, "all_tags")
-    
+    PATH_TO_DIR_USERS_JSON = os.path.join(PATH_TO_DIR_DATA, "users")
 
     def __init__(self) -> None:
         pass
@@ -87,7 +87,7 @@ class IO_RankingSystem:
             
             IO_RankingSystem._save(tags_list, path_to_save)
 
-        return tags
+        return tags 
         
 
     @staticmethod
@@ -110,7 +110,58 @@ class IO_RankingSystem:
         return courses
     
     
+    
+    # USER
+    @staticmethod
+    def save_user(chat_id : ChatBotId, name : str, direction : str = None, email : str = None, context={}):
+        user = User(chat_id=chat_id, name=name, email=email, direction=direction, context=context)
+        name_file = f"{chat_id}_user.json"
+        path_user_file = os.path.join(IO_RankingSystem.PATH_TO_DIR_USERS_JSON, name_file)
+        User.save_to_json(user, path_user_file)
 
+    @staticmethod
+    def load_user(chat_id : ChatBotId):
+        name_file = f"{chat_id}_user.json"
+        path_user_file = os.path.join(IO_RankingSystem.PATH_TO_DIR_USERS_JSON, name_file)
+
+        if not os.path.isfile(path_user_file):
+            return None
+        user = User.load_from_json(path_user_file)
+        return user
+    
+    @staticmethod
+    def add_tag_to_user(chat_id : ChatBotId, tag : TagTitle):
+        user = IO_RankingSystem.load_user(chat_id)
+        if user is None:
+            return False
+        user.context[tag] = tag
+        IO_RankingSystem.save_user(**user.__dict__)
+        return True
+    
+    @staticmethod
+    def delete_tag_from_user(chat_id : ChatBotId, tag : TagTitle):
+        user = IO_RankingSystem.load_user(chat_id)
+        if user is None:
+            return False
+        if tag in user.context:
+            del user.context[tag]   
+        IO_RankingSystem.save_user(**user.__dict__)
+        return True
+    
+    @staticmethod
+    def get_all_users() -> Dict[ChatBotId, User]:
+        users : Dict[ChatBotId, User] = dict()
+        file_name_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_USERS_JSON)
+        for file_name in  file_name_list:
+            path_to_file = os.path.join(IO_RankingSystem.PATH_TO_DIR_USERS_JSON, file_name)
+            user = User.load_from_json(path_to_file)
+
+            users[user.chat_id] = user
+
+        return users
+
+
+    # __USER
 
 if __name__ == "__main__":
     io_rk = IO_RankingSystem()  
@@ -123,5 +174,23 @@ if __name__ == "__main__":
 
     # io_rk._all_tags(is_save=True)
 
-    courses = io_rk.get_all_courses()
+    # courses = io_rk.get_all_courses()
     # pprint.pprint(courses["AlgGrS"])
+
+    # io_rk.save_user(chat_id=2, name="Komnatskiy", direction="Науки о Данных", email="st022323@gmail.com")
+
+    # user = io_rk.load_user(chat_id=2)
+
+    # io_rk.save_user(chat_id=1, name="Anufree")
+    # print(user)
+
+    # io_rk.add_tag_to_user(chat_id=1, tag="Матан")
+
+    # io_rk.add_tag_to_user(chat_id=2, tag="Алгебра")
+
+    # io_rk.delete_tag_from_user(chat_id=2, tag="Матан")
+
+    # user = io_rk.load_user(chat_id=1)
+    
+    users = io_rk.get_all_users()
+    print(users)

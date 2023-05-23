@@ -11,3 +11,4 @@ FieldOfKnowledge = str
 StrTag = str
 
 CourseJson = dict
+

@@ -22,9 +22,8 @@ class User:
     
     @staticmethod
     def save_to_json(user : "User", path: StrPath):
-        json.dump(User._tag_to_json(user) , open(StrPath, "w", encoding="utf-8"), sort_keys=True, indent=4, ensure_ascii=False)
+        json.dump(User._user_to_json(user) , open(path, "w+", encoding="utf-8"), sort_keys=True, indent=4, ensure_ascii=False)
         
-
     @staticmethod
     def _json_to_user(user_json : Dict) -> "User":
         user = User()
@@ -33,7 +32,7 @@ class User:
     
     @staticmethod
     def load_from_json(path: StrPath) -> "User":
-        user_json = json.load(open(StrPath, "w", encoding="utf-8"))
-        user = User._json_to_tag(user_json)
+        user_json = json.load(open(path, "r", encoding="utf-8"))
+        user = User._json_to_user(user_json)
         return user
     
