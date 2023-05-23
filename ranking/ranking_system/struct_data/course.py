@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 # from .context import Context 
 from .tag import Tag
 from .aliases import CourseShortName, TagTitle, StrPath
@@ -18,11 +18,14 @@ class Course:
     size : str = None
     lecturer_id : int = None
     year : int = None
-    context : Dict[TagTitle, Tag] = None
+    context : Dict[TagTitle, Tag] = field(default_factory=lambda: dict())
 
     @staticmethod
-    def _course_to_json(tag : "Course") -> dict:
-        return tag.__dict__
+    def _course_to_json(course : "Course") -> dict:
+        res_course = course.__dict__
+        res_course['context'] = Tag.dict_tags_to_json(course.context)
+
+        return res_course
     
     @staticmethod
     def save_to_json(course : "Course", path: StrPath):
@@ -40,4 +43,3 @@ class Course:
         course_json = json.load(open(StrPath, "w", encoding="utf-8"))
         course = Course._json_to_tag(course_json)
         return course
-    

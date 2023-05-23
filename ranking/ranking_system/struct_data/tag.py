@@ -30,4 +30,10 @@ class Tag:
         tag_json = json.load(open(StrPath, "w", encoding="utf-8"))
         tag = Tag._json_to_tag(tag_json)
         return tag
-        
+    
+    @staticmethod
+    def dict_tags_to_json(dict_tags : Dict[TagTitle, "Tag"]) -> dict:
+        tags_json = dict()
+        for tag_title, tag in dict_tags.items():
+            tags_json[tag_title] = tag
+        return tags_json

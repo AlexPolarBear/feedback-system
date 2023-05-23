@@ -5,8 +5,8 @@ sys.path.append(os.path.dirname(__file__))
 # typing
 from typing import Callable, Union, List, Tuple, Dict
 from struct_data.aliases import TagId, TagTitle, CourseShortName, \
-    ChatBotId, FieldOfKnowledge, StrTag, StrPath, \
-    CourseJson
+    ChatBotId, FieldOfKnowledge, StrPath, \
+    CourseJSON, UserJSON
 
 from struct_data.tag import Tag
 from struct_data.user import User
@@ -20,7 +20,14 @@ import json
 import pprint
 
 class IO_RankingSystem:
-    # general
+    # APT FOR YOU
+    ## save_user
+    ## load_user_json
+    ## add_tag_to_user
+    ## delete_tag_from_user
+
+
+    # general paths
     PATH_TO_DIR_DATA = os.path.join(os.path.dirname(__file__), "relevant_data")
     # 
     PATH_TO_FILE_COURSES_JSON =  os.path.join(PATH_TO_DIR_DATA, "courses_json", "courses.json")
@@ -29,12 +36,24 @@ class IO_RankingSystem:
     PATH_TO_DIR_ALL_TAGS = os.path.join(PATH_TO_DIR_DATA, "all_tags")
     PATH_TO_DIR_USERS_JSON = os.path.join(PATH_TO_DIR_DATA, "users")
 
+    # 
+    ALL_TAGS : Dict[TagTitle, TagTitle] = None
+
+
     def __init__(self) -> None:
         pass
     
     @staticmethod
+    def has_this_tag_in_bd(tag_title: TagTitle):
+        if IO_RankingSystem.ALL_TAGS is None:
+            IO_RankingSystem.ALL_TAGS = IO_RankingSystem.get_all_tags()
+        
+        return tag_title in IO_RankingSystem.ALL_TAGS
+
+
+    @staticmethod
     def _save(obj : object, path : StrPath):
-        json.dump(obj, open(path, "w", encoding="utf-8"),
+        json.dump(obj, open(path, "w+", encoding="utf-8"),
                           indent=4, ensure_ascii=False)
     
     @staticmethod 
@@ -42,11 +61,11 @@ class IO_RankingSystem:
         return json.load(open(path, "r", encoding="utf-8"))
 
     @staticmethod
-    def _collect_all_courses_tags(field_of_knowledge_list : List[FieldOfKnowledge] = None) -> Dict[CourseShortName, Dict[StrTag, Tag]]:
+    def _collect_all_courses_tags(field_of_knowledge_list : List[FieldOfKnowledge] = None) -> Dict[CourseShortName, Dict[TagTitle, Tag]]:
         if field_of_knowledge_list is None:
             field_of_knowledge_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_COURSES_TAGS)
         
-        courses_tags_str : Dict[CourseShortName, List[StrTag]] = dict()
+        courses_tags_str : Dict[CourseShortName, List[TagTitle]] = dict()
 
         for field_of_knowledge in field_of_knowledge_list:
             path_to_dir_fok = os.path.join(IO_RankingSystem.PATH_TO_DIR_COURSES_TAGS, field_of_knowledge)
@@ -60,7 +79,7 @@ class IO_RankingSystem:
                     path_to_file = os.path.join(path_to_final_dir, file_name)
                     # print(f"_collect_all_courses_tags: {path_to_file}")
 
-                    course_tags : List[StrTag] = json.load(open(path_to_file, "r", encoding="utf-8"))
+                    course_tags : List[TagTitle] = json.load(open(path_to_file, "r", encoding="utf-8"))
                     tags_dict = {tag : tag for tag in course_tags}
 
                     courses_tags_str[course_short_name] = tags_dict
@@ -76,7 +95,7 @@ class IO_RankingSystem:
     def _all_tags(file_name : str = "all_tags.json", is_save : bool = False):
         courses_str = IO_RankingSystem._collect_all_courses_tags()
         
-        tags : Dict[TagTitle : Tag] = dict()
+        tags : Dict[TagTitle : TagTitle] = dict()
         for course_short_name, course_tags in courses_str.items():
             for tag_str in course_tags:
                 tags[tag_str] = tag_str
@@ -88,19 +107,24 @@ class IO_RankingSystem:
             IO_RankingSystem._save(tags_list, path_to_save)
 
         return tags 
-        
+    
+    @staticmethod
+    def get_all_tags(file_name : str = "all_tags.json", is_save : bool = False):
+        tags = IO_RankingSystem._all_tags()
+        tags_class = {tag_title : Tag(title=tag_title) for tag_title, _  in tags.items()}
+        return tags_class
 
     @staticmethod
     def get_all_courses() -> Dict[CourseShortName, Course]:
         courses_jsons = IO_RankingSystem._get_courses_jsons()
         courses_tags_str = IO_RankingSystem._collect_all_courses_tags()
-
+        
         courses : Dict[CourseShortName, Course] = dict()
         for course in courses_jsons:
             course_short_name = course['short_name']
 
             courses[course_short_name] = course
-            # courses[course_short_name]['description'] = None
+            courses[course_short_name]['context'] : Dict[TagTitle, Tag] = dict()
         
         for course_short_name, tags_str_dict in courses_tags_str.items():
             courses[course_short_name]['context'] = tags_str_dict
@@ -120,21 +144,30 @@ class IO_RankingSystem:
         User.save_to_json(user, path_user_file)
 
     @staticmethod
-    def load_user(chat_id : ChatBotId):
+    def load_user(chat_id : ChatBotId) -> UserJSON:
         name_file = f"{chat_id}_user.json"
         path_user_file = os.path.join(IO_RankingSystem.PATH_TO_DIR_USERS_JSON, name_file)
 
         if not os.path.isfile(path_user_file):
             return None
         user = User.load_from_json(path_user_file)
+        
         return user
     
     @staticmethod
-    def add_tag_to_user(chat_id : ChatBotId, tag : TagTitle):
+    def load_user_json(chat_id : ChatBotId):
+        user_json = IO_RankingSystem.load_user(chat_id=chat_id)
+        return user_json
+
+    @staticmethod
+    def add_tag_to_user(chat_id : ChatBotId, tag_title : TagTitle):
         user = IO_RankingSystem.load_user(chat_id)
         if user is None:
             return False
-        user.context[tag] = tag
+        if not IO_RankingSystem.has_this_tag_in_bd(tag_title):
+            return False
+        
+        user.context[tag_title] = tag_title
         IO_RankingSystem.save_user(**user.__dict__)
         return True
     
@@ -161,6 +194,12 @@ class IO_RankingSystem:
         return users
 
 
+    @staticmethod
+    def get_all_users_json() -> Dict[ChatBotId, UserJSON]:
+        users = IO_RankingSystem.get_all_users()
+        users_json = {user.chat_id : user.__dict__ for _, user in users.items()}
+        return users_json
+    
     # __USER
 
 if __name__ == "__main__":
@@ -184,13 +223,15 @@ if __name__ == "__main__":
     # io_rk.save_user(chat_id=1, name="Anufree")
     # print(user)
 
-    # io_rk.add_tag_to_user(chat_id=1, tag="Матан")
-
+    # ok = io_rk.add_tag_to_user(chat_id=1, tag_title="Матан")
+    # print(ok)
+    # ok = io_rk.add_tag_to_user(chat_id=1, tag_title="теория категорий")
+    # print(ok)
     # io_rk.add_tag_to_user(chat_id=2, tag="Алгебра")
 
     # io_rk.delete_tag_from_user(chat_id=2, tag="Матан")
 
     # user = io_rk.load_user(chat_id=1)
     
-    users = io_rk.get_all_users()
-    print(users)
+    users = io_rk.get_all_users_json()
+    pprint.pprint(users)

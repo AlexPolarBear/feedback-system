@@ -8,7 +8,8 @@ StrPath = str
 
 
 FieldOfKnowledge = str
-StrTag = str
+# StrTag = str
 
-CourseJson = dict
-
+CourseJSON = dict
+TagJSON = dict
+UserJSON = dict
