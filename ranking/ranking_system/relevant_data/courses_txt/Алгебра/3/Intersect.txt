@@ -1,0 +1,26 @@
+
+059718 Теория пересечений / Intersection Theory
+
+Теория пересечений --- одновременно и самая классическая, и одна из самых бурно развивающихся 
+областей алгебраической геометрии. Начнем с классической задачи: сколько прямых пересекают 
+четыре прямые в общем положении в трехмерном пространстве? Оказывается, что ответ (две прямые) 
+получается вычислением в кольце Чжоу некоторого грассманиана (или из неформального рассуждения: 
+выродим общий случай в специальный, когда есть две пары пересекающихся прямых, тогда их пересекает 
+прямая, проходящая через их точки пересечения, и прямая, являющаяся пересечением плоскостей, 
+содержащих эти пары). Кольца (или, в негладком случае, группы) Чжоу --- это аналог сингулярной 
+теории когомологий, которая работает над любым полем, не обязательно алгебраически замкнутым или 
+характеристики 0. В курсе будет рассказано построение колец Чжоу и приведены некоторые примеры, 
+главным образом связанные с грассманианами).
+
+Intersection theory is both the most classical and one of the most rapidly developing area of 
+algebraic geometry. Start with a classical problem: how many lines in three dimensional space 
+meet four lines in a generic position? It turns out that the answer (two lines) can be computed 
+using the Chow ring of a Grassmannian (or can be seen from the following informal argument: 
+degenerate the generic case to a special when we have two pairs of intersecting lines; then we 
+have a line passing through their intersection points and a line that is the intersection of the 
+planes containing these two pairs of lines). Chow rings (or, in the non-smooth case, groups) are 
+an analog of the singular cohomology that are defined over any field, not necessarily algebraically 
+closed or of characteristic 0. The course is devoted to the construction of Chow rings; some examples 
+related to Grassmannians are given.
+2019-059718_ABS.txt
+2019-059718_ABS.txt. На экране.

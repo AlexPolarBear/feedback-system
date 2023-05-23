@@ -1,0 +1,18 @@
+
+059720	Групповые схемы
+
+Данный курс является сокращенным вариантом курса "Редуктивные групповые схемы", с большим упором на общую теорию
+групповых схем в противовес специальной теории редуктивных групп. Групповые схемы
+рассматриваются как пучки в соответствующих топологиях Гротендика, и предполагается обсудить факторизацию
+по действию групповой схемы и ее главные однородные пространства (торсоры) с этой точки зрения. Также будет 
+дан обзор теории алгебраических торов и редуктивных групповых схем.
+
+Список литературы по теме курса:
+
+B. Conrad, Reductive group schemes, записки лекций, http://math.stanford.edu/~conrad/papers/luminysga3.pdf.
+M. Demazure, A. Grothendieck, Schemas en groupes (SGA3), reedited by  Philippe Gille and Patrick Polo, 
+available at https://webusers.imj-prg.fr/~patrick.polo/SGA3/. 
+M. Demazure, P. Gabriel, Introduction to algebraic geometry and algebraic groups, North-Holland Publishing Co., Amsterdam, 1980.
+J. S. Milne, Algebraic groups. The theory of group schemes of finite type over a field, Cambridge University Press, Cambridge, UK, 2017.
+2019-059720_ABS.txt
+2019-059720_ABS.txt. На экране.

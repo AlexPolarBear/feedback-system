@@ -1,0 +1,39 @@
+Замощения плоскости
+
+ 
+На спецсеминаре мы рассмотрим различные задачи, связанные с замощениями плоскости копиями плиток из некоторого конечного набора. Особое внимание уделяется апериодическим замощениям, т.е. замощениям такими наборами плиток, для которых замощения плоскости существуют, но все они непериодические.
+
+
+1. Апериодические замощения: постановка задачи. Связанные задачи алгоритмической разрешимости. Пример апериодического замощения: замощение Робинсона.
+
+2. Апериодические замощеня 14-ю плитками Ванга
+
+3. Минимальный апериодический набор плиток Ванга
+
+4. Проблема существования апериодических замощений одной плиткой
+
+5. Несвязная апериодическая плитка
+
+6. Замощение Пенроуза
+
+7. Апериодические замощения в многомерном случае
+
+8. Группы симметрий замощений
+
+Литература (список статей может варьироваться):
+
+Berger, Robert (1966). "The undecidability of the domino problem". Memoirs of the American Mathematical Society (66): 1–72.
+ 
+Robinson, Raphael M. (1971). "Undecidability and Nonperiodicity for Tilings of the Plane". Inventiones Mathematicae. 12 (3): 177–209.
+
+Goodman-Strauss, Chaim (1998). "Matching rules and substitution tilings". Annals of Mathematics. 147 (1): 181–223.
+
+Goodman-Strauss, Chaim (1999). "A small aperiodic set of planar tiles". European Journal of Combinatorics. 20 (5): 375–384.
+
+Kari, Jarkko (1996). "A small aperiodic set of Wang tiles". Discrete Mathematics. 160 (1–3): 259–264.
+
+Penrose, Roger (1978), "Pentaplexity", Eureka, 39: 16–22
+
+Socolar, Joshua E. S.; Taylor, Joan M. (2011), "An aperiodic hexagonal tile", Journal of Combinatorial Theory, Series A, 118 (8): 2207–2231
+
+Socolar, Joshua E. S.; Taylor, Joan M. (2011), "Forcing nonperiodicity with a single tile", The Mathematical Intelligencer, 34 (1): 18–28

@@ -15,7 +15,7 @@ from simple_data.simpleCourses import simple_courses
 from simple_data.simpleUsers import simple_users
 from simple_data.simpleTags import simple_tags
 
-from model_text_to_tags.chatGPT.chatGPT import ChatGPT
+# from model_text_to_tags.chatGPT.chatGPT import ChatGPT
 
 
 # algorithms
@@ -211,28 +211,4 @@ class RankingSystem:
     ## __OFFER_TAGS_WITHOUT_USER_TEXT
     # __TOP_TAGS_FOR_SNIPPET
 
-    # GET_TAGS_FOR_COURSES
-    # @staticmethod
-    # def _get_courses_tags() -> Dict[]
-
-    @staticmethod
-    def _get_all_tags(model_name: str = "ChatGPT") -> Dict[TagTitle, Tag]:
-        model = None
-        if model_name == "ChatGPT":
-            model = ChatGPT()
-        
-        all_tags = model.load_all_tags()
-
-        return all_tags
     
-    @staticmethod
-    def _get_all_courses(model_name: str = "ChatGPT") -> List[Course]:
-        model = None
-        if model_name == "ChatGPT":
-            model = ChatGPT()
-        
-        courses_list = model.read_all_courses_json_to_courses()
-
-        return courses_list
-
-    # __GET_TAGS_FOR_COURSES

@@ -6,3 +6,8 @@ TagId = int
 
 StrPath = str
 
+
+FieldOfKnowledge = str
+StrTag = str
+
+CourseJson = dict

@@ -10,8 +10,8 @@ import json
 
 @dataclass
 class Course:
-    short_name : CourseShortName # PK  
-    description : str
+    short_name : CourseShortName = None # PK   
+    description : str = None
     id : int = None
     field_of_knowledge : str = None
     full_name : str = None
