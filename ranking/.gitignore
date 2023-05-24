@@ -1,0 +1,15 @@
+# */__pycache__
+**/__pycache__
+
+# */project_secrets.py
+*/help.py
+**/help.ipynb
+utils
+
+
+**/.ipynb_checkpoints/
+
+
+**/project_secrets.py
+
+test_main.py

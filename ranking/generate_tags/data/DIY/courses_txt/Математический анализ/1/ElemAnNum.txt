@@ -1,0 +1,22 @@
+ELEMENTARY NUMBER THEORY
+ERIC T. MORTENSON
+1. Course description
+We will not assume knowledge of complex analysis. Sources for lectures will be the
+notes from courses run by Bob Vaughan at Penn State University and Imperial College
+London.
+Reference texts:
+(1) G. E. Andrews, Number Theory,
+(2) H. Davenport, Multiplicative Number Theory,
+(3) L.-K. Hua, Introduction to Number Theory,
+(4) I. Niven, H. Zuckerman, H. Montgomery, An Introduction to the Theory of Numbers,
+(5) I. M. Vinogradov, The Method of Trigonometrical Sums in the Theory of Numbers..
+Topics:
+(1) Divisibility and the fundamental theorem of arithmetic
+(2) Euclid’s algorithm
+(3) Congruences and residue classes
+(4) Primitive roots
+(5) Quadratic residues
+(6) Sums of squares
+(7) Arithmetic functions
+(8) Distribution of primes
+(9) Diophantine equations and approximation

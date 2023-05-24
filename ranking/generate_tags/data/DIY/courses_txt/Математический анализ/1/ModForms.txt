@@ -1,0 +1,29 @@
+Introduction to Modular Forms
+D. V. Adler
+DESCRIPTION: This course is an introduction to the theory of modular
+forms. A modular form is a function on the complex upper half plane that
+satisfies holomorphy conditions and certain transformation condition with
+respect to the action of the modular group SL2(Z) or one of its subgroups
+(so called congruence subgroups). Modular forms are useful in various areas
+of mathematics from number theory to mathematical physics. On the other
+hand, the theory of modular forms combines some methods from different
+branches like complex analysis, topology, differential geometry, and number
+theory. In our course we will make the first steps in studying this beautiful
+theory.
+This course is designed for 2-4 year bachelor and graduate students.
+SYLLABUS:
+1. The modular group and congruence subgroups.
+2. Definition of modular forms and first properties.
+3. Examples of modular forms: Eisenstein series, theta series.
+4. Hecke operators.
+5. Modular curves.
+6. Applications.
+7*. Siegel modular forms.
+PREREQUISITES: Complex Analysis (basic properties of holomorphic
+functions, Cauchy’s integral formula), Basic Algebra, Basic Calculus.
+TEXTBOOKS:
+1. F. Diamond and J. Shurman, ”A First Course in Modular Forms”,
+Graduate Texts in Mathematics 228, Springer-Verlag, 2005.
+2. J.-P. Serre, ”A Course in Arithmetic”, Graduate Texts in Mathematics 7, Springer-Verlag, 1973. (Chapter VII.)
+3. J.H. Bruinier, G. van der Geer, G. Harder and D. Zagier, ”The 1-2-3
+of Modular Forms”, Universitext, Springer-Verlag, 2008.
