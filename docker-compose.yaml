@@ -1,0 +1,42 @@
+version: "3"
+services:
+    db:
+        container_name: feedback-db
+        image: mysql:latest
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_PASSWORD: password
+            MYSQL_USER: user_name
+            MYSQL_DATABASE: feedback
+        # networks: 
+        #     "feedback"
+        volumes:
+            - ./sql:/docker-entrypoint-initdb.d
+    app:
+        container_name: feedback-app
+        depends_on:
+            - db
+        restart: on-failure:1000
+        build: feedback-app
+            # context: /feedback-app/
+            # dockerfile: Dockerfile
+        # networks:
+        #     "feedback"
+        ports:
+            - "5000:5000"
+# networks:
+#     "feedback"
+
+# version: '3'
+# services:
+# # MySQL Container
+#   mysql:
+#     build:
+#       context: ./
+#       args:
+#         - MYSQL_DATABASE=${MYSQL_DATABASE}
+#         - MYSQL_USER=${MYSQL_USER}
+#         - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+#         - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+#     ports:
+#       - "${MYSQL_PORT}:3306"
