@@ -1,0 +1,44 @@
+SPbU: GAME THEORY
+
+Course Description
+This is a course on Game theory and its applications. The course is designed for students with
+an interest in exploring the mathematical foundations of game theory and its applications, as well
+as more advanced and nuanced topics. The first part of the course will contain the basics of game
+theory and include the topics such as the Nash equilibrium, backward induction, static and dynamic
+games of incomplete information. The second part of the course will be taught by a team of
+lecturers, each of whom will present the fundamentals as well as the research frontier and open
+questions in their field. The course will also cover the application of game theory to economics
+(primarily), political science, computer science, and other fields. Students will have the opportunity
+to explore real-world examples of game theory in action and develop a deeper understanding of
+the mathematical underpinnings of the field.
+The course is taught in Russian, the materials are, as a rule, in English. All communication will
+be done via the telegram chat.
+
+
+Schedule
+1. Feb 14: Introduction. Chess. Expected utility theory (brief recap). Games in Extensive form.
+Zermello’s theorem. Chomp. [Chapters 1,2,3 in MSZ (Maschler, Solan, Zamir)]
+2. Feb 21: Strategic-form games. Equilibrium concepts. Zero-sum games.
+3. Feb 28 (online): Mixed strategies. Nash Theorem.
+4. Mar 7: Static games with incomplete information.
+5. Mar 14: Dynamic games with complete information.
+6. Mar 21 (guest lecturer Eugene Zalyubovsky): Dynamic games with incomplete information.
+7. Mar 28: Dynamic games with incomplete information - 2.
+8. Apr 4 (guest lecturer: Vasily Gusev): Cooperative game theory. Coalition-formation games
+9. Apr 11 (guest lecturer: Vasily Gusev): Potential games.
+10. Apr 18: Midterm exam.
+11. Apr 25 (guest lecturer: Mikhail Panov): Continuous-time games.
+12. May 2 (guest lecturer: Alexey Suzdaltsev): Introduction to auction theory and optimal auction design.
+13. May 9: Matching market design: 1-sided preferences.
+14. May 16: Matching market design: 2-sided preferences.
+15. May 23 (guest lecturer: Aleksei Kondratev): Axiomatic mechanism design.
+16. May 30: Strategic communication and information design.
+Course Objectives
+The course is supposed to help you . . .
+• understand the key problems and concepts in game theory.
+• learn how game theory is applied, primarily in Economics.
+• solve game-theoretic problems.
+• find new applications, formulate them as game-theoretic problems and address them using
+the models and concepts covered in the class.
+• see the limitations of game theory.
+• get a systematic perspective on the strategic issues in a variety of life situations thereby deepening your understanding of these situations.

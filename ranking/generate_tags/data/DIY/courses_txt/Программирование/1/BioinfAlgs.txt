@@ -1,0 +1,11 @@
+Bioinformatics Algorithms
+The course will cover the algorithmic foundations of bioinformatics, ranging from generic
+algorithmic techniques to specific algorithms used in various areas of computational biology. In
+particular, topics include string algorithms used in the analysis of biological sequences;
+combinatorial algorithms for gene finding and motif discovery; graph algorithms used in genome
+assembly and comparative genomics; clustering algorithms for the gene expression analysis and
+reconstruction of evolutionary trees. Theoretical background will be complemented with solving
+practical problems (coding challenges). This course will be given in a flipped classroom format.
+All text and video materials will be available online and should be studied beforehand. The class
+time will be dedicated to resolving learning breakdowns, answering curiosity questions and
+discussions. All course materials are in English
