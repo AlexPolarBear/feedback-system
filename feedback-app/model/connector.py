@@ -4,8 +4,8 @@ from mysql.connector import Error
 
 def create_connection():
     
-    with open('mysql_password.txt', 'r', encoding='utf-8-sig') as fp:
-        mysql_password = fp.read().rstrip()
+#     with open('mysql_password.txt', 'r', encoding='utf-8-sig') as fp:
+#         mysql_password = fp.read().rstrip()
 
     connection = None
     try:
