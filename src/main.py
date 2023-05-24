@@ -7,7 +7,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from config import bot_token
-from data import get_faculties, get_directions_by_faculty_id, get_courses_by_direction_id, get_course_by_id, get_review_by_course_id, get_metrics, get_metric_name_by_id, get_metric_score_by_chat_id, get_metric_score_by_metric_id, add_or_replace_score, add_review
+from db_proxy_interface import DB_Proxy_Interface
+from context import get_courses_by_user_request, get_tags_by_user_request 
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,64 +26,125 @@ dp = Dispatcher(bot, storage=storage)
 class user_message(StatesGroup):
     review = State()
     score = State()
+    course_name = State()
+    text_with_preferences = State()
 
-async def send_faculties_keyboard(chat_id):
-    faculties = get_faculties()
+@dp.callback_query_handler(lambda callback_query: callback_query.data == 'main_page', state='*')
+async def back_to_main_page(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.reset_state(with_data=False)
+    await show_main_page(callback_query.from_user.id)
+    await bot.answer_callback_query(callback_query.id)
+
+async def show_main_page(chat_id):
+    text = """
+👋 Привет!
+
+🤖 Это телеграм-бот "Система отзывов, оценок и рекомендаций"!
+
+Тут ты cможешь:
+1️⃣ Ознакомиться с оценками и отзывами по интересующему тебя курсу 📚
+2️⃣ Оставить оценку или отзыв на пройденный тобою курс 📝
+3️⃣ Подобрать курс на новый семестр согласно твоим предпочтениям 🎯
+"""
+
     keyboard = InlineKeyboardMarkup()
-    for faculty in faculties:
-        button = InlineKeyboardButton(text=faculty['name'], callback_data='faculty_{}'.format(faculty['id']))
-        keyboard.add(button)
-    await bot.send_message(chat_id, 'Выберите факультет:', reply_markup=keyboard)
+    feedback_system_button = InlineKeyboardButton(text='Поиск курсов', callback_data='search_courses')
+    keyboard.add(feedback_system_button)
+    preferences_settings_button = InlineKeyboardButton(text='Редактировать свои предпочтения', callback_data='set_courses_preferences')
+    keyboard.add(preferences_settings_button)
+    reccomended_courses_button = InlineKeyboardButton(text='Получить релевантные курсы', callback_data='get_reсcomended_courses')
+    keyboard.add(reccomended_courses_button)
+    await bot.send_message(chat_id, text=text, reply_markup=keyboard)
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == 'search_courses', state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    text = '''
+Введите назавание курса (при неточнотях в названии мы постараемся помочь вам найти его)
+
+Также вы можете выбрать курс из списка,
+нажав на кнопку <b>Выбрать курс из списка</b>
+'''
+    keyboard = InlineKeyboardMarkup()
+    list_selection_button = InlineKeyboardButton(text='Выбрать курс из списка', callback_data='select_course_from_list')
+    keyboard.add(list_selection_button)
+    back_button = InlineKeyboardButton(text='Назад', callback_data='main_page')
+    keyboard.add(back_button)
+    await bot.send_message(callback_query.from_user.id, text=text, reply_markup=keyboard, parse_mode=types.ParseMode.HTML)
+    await user_message.course_name.set()
+    await bot.answer_callback_query(callback_query.id)
+
+@dp.message_handler(state=user_message.course_name)
+async def review_handler_text(message: types.Message, state: FSMContext):
+    course_name = message.text
+    await state.update_data(
+        {
+            'course_name': course_name
+        }
+    )
+    await state.reset_state(with_data=False)
+    # await get_courses_by_user_course_name(message.chat.id, state)
+    user_data = await state.get_data()
+    course_name = user_data.get('course_name')
+    courses = get_courses_by_user_request(request=course_name)
+    await state.update_data(
+        {
+            'course_list': courses
+        }
+    )
+    await show_course_list(message.chat.id, state)
+
+# @dp.callback_query_handler(lambda callback_query: callback_query.data == 'get_courses_by_user_request', state='*')
+# async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+#     await get_courses_by_user_course_name(callback_query.from_user.id, state)
+#     await bot.answer_callback_query(callback_query.id)
+
+
+# async def get_courses_by_user_course_name(chat_id, state: FSMContext):
+#     user_data = await state.get_data()
+#     course_name = user_data.get('course_name')
+#     courses = get_courses_by_user_request(request=course_name)
+#     await state.update_data(
+#         {
+#             'course_list': courses
+#         }
+#     )
+#     await show_course_list(chat_id, state)
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
-    await send_faculties_keyboard(message.chat.id)
+    await show_main_page(message.chat.id)
 
-@dp.callback_query_handler(lambda callback_query: callback_query.data == 'faculties', state='*')
-async def back_to_faculties(callback_query: types.CallbackQuery):
-    await send_faculties_keyboard(callback_query.from_user.id)
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == 'select_course_from_list', state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.reset_state(with_data=False)
+    course_list = DB_Proxy_Interface.get_all_courses()
+    await state.update_data(
+        {
+            'course_list': course_list
+        }
+    )
+    await show_course_list(callback_query.from_user.id, state)
+    await bot.answer_callback_query(callback_query.id)
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == 'to_course_list', state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    await show_course_list(callback_query.from_user.id, state)
     await bot.answer_callback_query(callback_query.id)
 
 
-@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('faculty_'), state='*')
-async def process_callback_faculty(callback_query: types.CallbackQuery, state: FSMContext):
-    faculty_id = int(callback_query.data[8:])
-    await state.update_data(
-        {
-            'faculty_id': faculty_id
-        }
-    )
-    directions = get_directions_by_faculty_id(faculty_id)
+async def show_course_list(chat_id, state: FSMContext):
+    user_data = await state.get_data()
+    course_list = user_data.get('course_list')
     keyboard = InlineKeyboardMarkup()
-    for direction in directions:
-        button = InlineKeyboardButton(text=direction['name'], callback_data='direction_{}'.format(direction['id']))
-        keyboard.add(button)
-    back_button = InlineKeyboardButton(text='Назад', callback_data='faculties')
-    keyboard.add(back_button)
-    await bot.send_message(callback_query.from_user.id, text='Выберите направление:', reply_markup=keyboard)
-    await bot.answer_callback_query(callback_query.id)
-
-@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('direction_'), state='*')
-async def process_callback_direction(callback_query: types.CallbackQuery, state: FSMContext):
-    print(callback_query.data)
-    direction_id = int(callback_query.data[10:])
-    await state.update_data(
-        {
-            'direction_id': direction_id
-        }
-    )
-    keyboard = InlineKeyboardMarkup()
-    courses = get_courses_by_direction_id(direction_id)
-    for course in courses:
+    for course in course_list:
         button = InlineKeyboardButton(text=course['name'], callback_data='course_{}_'.format(course['id']))
         keyboard.add(button)
     user_data = await state.get_data()
-    print(user_data)
-    faculty_id = user_data.get('faculty_id')
-    back_button = InlineKeyboardButton(text='Назад', callback_data='faculty_{}'.format(faculty_id))
+    back_button = InlineKeyboardButton(text='Назад', callback_data='search_courses')
     keyboard.add(back_button)
-    await bot.send_message(callback_query.from_user.id, text='Выберите курс:', reply_markup=keyboard)
-    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(chat_id, text='Выберите курс:', reply_markup=keyboard)
+
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('course_'), state='*')
 async def process_callback_course(callback_query: types.CallbackQuery, state: FSMContext):
@@ -95,7 +157,7 @@ async def process_callback_course(callback_query: types.CallbackQuery, state: FS
             'course_id': course_id
         }
     )
-    course = get_course_by_id(course_id)
+    course = DB_Proxy_Interface.get_course_by_id(course_id)
 #     text = f"""
 # Курс: {course['name']} ({course['type']})
 # Преподаватель: {course['teacher']}
@@ -115,8 +177,7 @@ async def process_callback_course(callback_query: types.CallbackQuery, state: FS
     add_feedback_button = InlineKeyboardButton(text='Оставить обратную связь', callback_data='add_feedback')
     keyboard.add(add_feedback_button)
     user_data = await state.get_data()
-    direction_id = user_data.get('direction_id')
-    back_button = InlineKeyboardButton(text='Назад', callback_data='direction_{}'.format(direction_id))
+    back_button = InlineKeyboardButton(text='Назад', callback_data='to_course_list')
     keyboard.add(back_button)
     print(callback_query.data)
     drop_new_message = not callback_query.data.endswith('_edit_last_message')
@@ -144,8 +205,8 @@ async def process_callback_feedback_view(callback_query: types.CallbackQuery, st
 async def show_feedback_for_course(chat_id, state: FSMContext, drop_new_message=True):
     user_data = await state.get_data()
     course_id = user_data.get('course_id')
-    course = get_course_by_id(course_id)
-    metrics = get_metrics()
+    course = DB_Proxy_Interface.get_course_by_id(course_id)
+    metrics = DB_Proxy_Interface.get_all_metrics()
     text = f"""
 <i><b>Курс: {course['name']} ({course['type']})
 Преподаватель: {course['teacher']}</b></i>
@@ -154,7 +215,7 @@ async def show_feedback_for_course(chat_id, state: FSMContext, drop_new_message=
 Успеваемость: 3.5/5.0
 """
     for metric in metrics:
-        text += f"""{metric['metric_name']}: {get_metric_score_by_metric_id(course_id, metric['metric_id'], chat_id)}\n"""
+        text += f"""{metric['name']}: {DB_Proxy_Interface.get_metric_score_by_metric_id(course_id, metric['id'], chat_id)}\n"""
 
     text += f"""
 Общий рейтинг курса: 73%
@@ -191,8 +252,8 @@ async def process_callback_review_view(callback_query: types.CallbackQuery, stat
 async def show_review_for_course(chat_id, state: FSMContext, drop_new_message=True):
     user_data = await state.get_data()
     course_id = user_data.get('course_id')
-    course = get_course_by_id(course_id)
-    review = get_review_by_course_id(course_id)
+    course = DB_Proxy_Interface.get_course_by_id(course_id)
+    review = DB_Proxy_Interface.get_feedback_by_course_id(course_id)
     text = f"""
 <i><b>Курс: {course['name']} ({course['type']})
 Преподаватель: {course['teacher']}</b></i>   
@@ -224,14 +285,14 @@ async def show_review_for_course(chat_id, state: FSMContext, drop_new_message=Tr
 async def process_callback_feedback_addition(callback_query: types.CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
     course_id = user_data.get('course_id')
-    course = get_course_by_id(course_id)
-    metrics = get_metrics()
+    course = DB_Proxy_Interface.get_course_by_id(course_id)
+    metrics = DB_Proxy_Interface.get_all_metrics()
     keyboard = InlineKeyboardMarkup()
-    button_for_first_metric = InlineKeyboardButton(text=metrics[0]['metric_name'], callback_data='estimate_metric-{}'.format(metrics[0]['metric_id']))
-    button_for_second_metric = InlineKeyboardButton(text=metrics[1]['metric_name'], callback_data='estimate_metric-{}'.format(metrics[1]['metric_id']))
+    button_for_first_metric = InlineKeyboardButton(text=metrics[0]['name'], callback_data='estimate_metric-{}'.format(metrics[0]['id']))
+    button_for_second_metric = InlineKeyboardButton(text=metrics[1]['name'], callback_data='estimate_metric-{}'.format(metrics[1]['id']))
     keyboard.add(button_for_first_metric, button_for_second_metric)
-    button_for_third_metric = InlineKeyboardButton(text=metrics[2]['metric_name'], callback_data='estimate_metric-{}'.format(metrics[2]['metric_id']))
-    button_for_fourth_metric = InlineKeyboardButton(text=metrics[3]['metric_name'], callback_data='estimate_metric-{}'.format(metrics[3]['metric_id']))
+    button_for_third_metric = InlineKeyboardButton(text=metrics[2]['name'], callback_data='estimate_metric-{}'.format(metrics[2]['id']))
+    button_for_fourth_metric = InlineKeyboardButton(text=metrics[3]['name'], callback_data='estimate_metric-{}'.format(metrics[3]['id']))
     keyboard.add(button_for_third_metric, button_for_fourth_metric)
     add_review_button = InlineKeyboardButton(text='Оставить отзыв', callback_data='add_review')
     keyboard.add(add_review_button)
@@ -269,9 +330,9 @@ async def process_callback_metric_estimation(callback_query: types.CallbackQuery
 async def suggest_estimate_metric(chat_id, state: FSMContext, drop_new_message=True):
     user_data = await state.get_data()
     course_id = user_data.get('course_id')
-    course = get_course_by_id(course_id)
+    course = DB_Proxy_Interface.get_course_by_id(course_id)
     metric_id = user_data.get('metric_id')
-    metric_name = get_metric_name_by_id(metric_id)
+    metric_name = DB_Proxy_Interface.get_metric_name_by_id(metric_id)
     keyboard = InlineKeyboardMarkup()
     back_button = InlineKeyboardButton(text='Назад', callback_data='add_feedback')
     keyboard.add(back_button)
@@ -281,7 +342,7 @@ async def suggest_estimate_metric(chat_id, state: FSMContext, drop_new_message=T
     
 Метрика: <b>{metric_name}</b>
 """ 
-    personal_score = get_metric_score_by_chat_id(course_id, metric_id, chat_id)
+    personal_score = DB_Proxy_Interface.get_metric_score_by_chat_id(course_id, metric_id, chat_id)
     if personal_score != None:
         text += f"""\nВаша оценка: {personal_score} (новая оценка затрёт старую)\n"""
     text += """
@@ -347,7 +408,7 @@ async def process_callback_score_confirmation(callback_query: types.CallbackQuer
     score = user_data.get('score')
     print(score)
     chat_id = callback_query.from_user.id
-    add_or_replace_score(chat_id, metric_id, course_id, score)
+    DB_Proxy_Interface.add_or_replace_score(chat_id, metric_id, course_id, score)
     await bot.send_message(chat_id, text="Ваша оценка успешно сохранена")
     await show_feedback_for_course(chat_id, state)
     await bot.answer_callback_query(callback_query.id)
@@ -358,7 +419,7 @@ async def process_callback_score_confirmation(callback_query: types.CallbackQuer
 async def process_callback_review_addition(callback_query: types.CallbackQuery, state: FSMContext):
     user_data = await state.get_data()
     course_id = user_data.get('course_id')
-    course = get_course_by_id(course_id)
+    course = DB_Proxy_Interface.get_course_by_id(course_id)
     keyboard = InlineKeyboardMarkup()
     back_button = InlineKeyboardButton(text='Отмена', callback_data='add_feedback')
     keyboard.add(back_button)
@@ -402,8 +463,8 @@ async def process_callback_review_confirmation(callback_query: types.CallbackQue
     course_id = user_data.get('course_id')
     print('course_id: ', str(course_id))
     review_text = user_data.get('review_text')
-    add_review(course_id, review_text)
     chat_id = callback_query.from_user.id
+    DB_Proxy_Interface.add_feedback(course_id, chat_id, review_text)
     await bot.send_message(chat_id, text="Ваш отзыв успешно сохранён")
     await show_review_for_course(chat_id, state)
     await bot.answer_callback_query(callback_query.id)
@@ -419,7 +480,141 @@ async def process_callback_review_cancellation(callback_query: types.CallbackQue
     await bot.answer_callback_query(callback_query.id)
 
 
-    
+### RECOMENDATION SECTION
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == 'set_courses_preferences', state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.reset_state(with_data=False)
+    keyboard = InlineKeyboardMarkup()
+    feedback_system_button = InlineKeyboardButton(text='Поиск подходящего тега по тексту', callback_data='search_tags_by_text')
+    keyboard.add(feedback_system_button)
+    preferences_settings_button = InlineKeyboardButton(text='Выбрать теги из предложенных', callback_data='select_tags_from_list')
+    keyboard.add(preferences_settings_button)
+    reccomended_courses_button = InlineKeyboardButton(text='Посмотреть ваши теги', callback_data='watch_user_tags')
+    keyboard.add(reccomended_courses_button)
+    back_button = InlineKeyboardButton(text='Назад', callback_data='main_page')
+    keyboard.add(back_button)
+    await bot.send_message(callback_query.from_user.id, text='...', reply_markup=keyboard)
+    await bot.answer_callback_query(callback_query.id)
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == 'search_tags_by_text', state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    keyboard = InlineKeyboardMarkup()
+    back_button = InlineKeyboardButton(text='Назад', callback_data='set_courses_preferences')
+    keyboard.add(back_button)
+    await bot.send_message(callback_query.from_user.id, text='Введите текст, который максимально точно описывает ваши предпочтения и мы предложим вам выбрать теги', reply_markup=keyboard)
+    await user_message.text_with_preferences.set()
+    await bot.answer_callback_query(callback_query.id)
+
+@dp.message_handler(state=user_message.text_with_preferences)
+async def review_handler_text(message: types.Message, state: FSMContext):
+    text_with_preferences = message.text
+    await state.reset_state(with_data=False)
+    # await get_courses_by_user_course_name(message.chat.id, state)
+    # user_data = await state.get_data()
+    # course_name = user_data.get('course_name')
+    tags = get_tags_by_user_request(request=text_with_preferences)
+    await state.update_data(
+        {
+            'tag_list': tags,
+            'last_callback_data': 'search_tags_by_text'
+        }
+    )
+    await show_tag_list(message.chat.id, state)
+
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == 'select_tags_from_list', state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    tags = DB_Proxy_Interface.get_all_tags()
+    await state.update_data(
+        {
+            'tag_list': tags,
+            'last_callback_data': 'set_courses_preferences'
+        }
+    )
+    await show_tag_list(callback_query.from_user.id, state)
+    await bot.answer_callback_query(callback_query.id)
+
+
+async def show_tag_list(chat_id, state: FSMContext):
+    user_data = await state.get_data()
+    tag_list = user_data.get('tag_list')
+    keyboard = InlineKeyboardMarkup()
+    for tag in tag_list:
+        button = InlineKeyboardButton(text=tag['title'], callback_data='save-tag-{}'.format(tag['id']))
+        keyboard.add(button)
+    user_data = await state.get_data()
+    last_callback_data = user_data.get('last_callback_data')
+    back_button = InlineKeyboardButton(text='Назад', callback_data=last_callback_data)
+    keyboard.add(back_button)
+    await bot.send_message(chat_id, text='Нажмите на теги, которые хотите сохранить', reply_markup=keyboard)
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('save-tag-'), state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    tag_id = int(callback_query.data[9:])
+    user_data = await state.get_data()
+    if 'user_tags' in user_data:
+        user_tags = user_data.get('user_tags')
+    else:
+        user_tags = []
+    new_tag = DB_Proxy_Interface.get_tag_by_id(tag_id)
+    user_tags.append(new_tag)
+    tag_list = user_data.get('tag_list')
+    tag_list = [tag for tag in tag_list if tag != new_tag]
+    await state.update_data(
+        {
+            'user_tags': user_tags,
+            'tag_list': tag_list
+        }
+    )
+    chat_id = callback_query.from_user.id
+    await bot.send_message(chat_id, text='Тег успешно сохранен')
+    await show_tag_list(chat_id, state)
+    await bot.answer_callback_query(callback_query.id)
+
+
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data == 'watch_user_tags', state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    await show_user_tags(callback_query.from_user.id, state)
+    await bot.answer_callback_query(callback_query.id)
+
+async def show_user_tags(chat_id, state: FSMContext):
+    user_data = await state.get_data()
+    if 'user_tags' in user_data:
+        user_tags = user_data.get('user_tags')
+    else:
+        user_tags = []
+    text = 'Нажмите на теги, которые хотите удалить'
+    if len(user_tags) == 0:
+        text = 'У вас пока нет никаких тегов'
+    keyboard = InlineKeyboardMarkup()
+    for tag in user_tags:
+        button = InlineKeyboardButton(text=tag['title'], callback_data='delete-tag-{}'.format(tag['id']))
+        keyboard.add(button)
+    back_button = InlineKeyboardButton(text='Назад', callback_data='set_courses_preferences')
+    keyboard.add(back_button)
+    await bot.send_message(chat_id, text=text, reply_markup=keyboard)
+
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('delete-tag-'), state='*')
+async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
+    tag_id = int(callback_query.data[11:])
+    user_data = await state.get_data()
+    user_tags = user_data.get('user_tags')
+    tag_to_delete = DB_Proxy_Interface.get_tag_by_id(tag_id)
+    user_tags = [tag for tag in user_tags if tag != tag_to_delete]
+    await state.update_data(
+        {
+            'user_tags': user_tags
+        }
+    )
+    chat_id = callback_query.from_user.id
+    await bot.send_message(chat_id, text='Тег успешно удален')
+    await show_user_tags(chat_id, state)
+    await bot.answer_callback_query(callback_query.id)
+
+
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)

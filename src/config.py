@@ -1,5 +1,5 @@
-from data import load_data
+from json_interface import JSON_Interface
 
-config = load_data('../data/config.json')
+config = JSON_Interface.load_data_from_json('../data/config.json')
 
 bot_token = config['bot_token']
