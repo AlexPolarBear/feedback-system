@@ -32,6 +32,7 @@ class RankingSystem:
     ## get_top_suitable_tags_by_context
     ## get_top_suitable_courses_by_text
 
+    NAMES_METRIC_DISTANCE = ["Jarow", "Levenshtain"]
 
     # В целом, нам нужен будет только один запрос 
     # весь context от user и course  
@@ -86,11 +87,18 @@ class RankingSystem:
     def _get_simple_tags(self):
         return simple_tags 
 
-    def update_tags(self):
+    def update_tags(self, from_file : bool = False):
         # change on request to BD
         # try except
         # self.tags = self._get_simple_tags()
-        self.tags = IO_RankingSystem.get_all_tags()
+        if from_file:
+            self.tags = IO_RankingSystem.get_all_tags()
+            return
+        self.tags : Dict[TagTitle, Tag] = dict()
+        for course_title, course in self.courses.items():
+            for tag_title, tag in course.context.items():
+                self.tags[tag_title] = tag
+
 
     # __TAGS
 
@@ -156,19 +164,36 @@ class RankingSystem:
         """
         
         return 1. - Levenshtein.ratio(s1, s2)
+    
+    @staticmethod
+    def _jarow_distance(s1 : str, s2 : str) -> float:
+        """
+        distance: 0 - s1 and s2 is same
+        distance: 100 - s1 and s2 is different
+        """
+        
+        return 1 - Levenshtein.jaro_winkler(s1, s2, prefix_weight=0.2)
+
     ## __DEFINE_DISTANCE
     
     ## TAG_TEXT_TO_TAG
     
     def get_top_suitable_tags_by_text(self, tag_req : str,
-                                       metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
-                                       max_count : int = 20) -> List[TagJSON]: 
-        
+                                    #    metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
+                                       metric_name : str = "Jarow",
+                                       max_count : int = 20) -> List[TagTitle]: 
+        metric_func : Callable[[str, str], Union[int, float]] = RankingSystem._levenshtain_distance
+        if metric_name == "Levenshtain":
+            metric_func : Callable[[str, str], Union[int, float]] = RankingSystem._levenshtain_distance
+        if metric_name == "Jarow":
+            metric_func : Callable[[str, str], Union[int, float]] = RankingSystem._jarow_distance
+
+
         metric_and_tag_list : List[Tuple[float, Tag]] = []
 
         for tag_title in self.tags:
-            metric = metric_func(tag_req, self.tags[tag_title].title)
-            metric_and_tag_list.append((metric, self.tags[tag_title]))
+            metric = metric_func(tag_req, tag_title)
+            metric_and_tag_list.append((metric, tag_title))
 
         metric_and_tag_list = sorted(metric_and_tag_list, key=lambda x: x[0], reverse=False)
         
@@ -177,8 +202,8 @@ class RankingSystem:
 
         res_tags = [res[1] for res in result]
 
-        res_tags_json = [Tag._tag_to_json(tag) for tag in res_tags]
-        return res_tags_json
+        res_tags_title = [tag_title for tag_title in res_tags]
+        return res_tags_title
     
 
     ## __TAG_TEXT_TO_TAG
@@ -223,14 +248,25 @@ class RankingSystem:
 
     ## COURSE_TEXT_TO_COURSE
     def _get_top_suitable_courses_by_text(self, course_req : str,
-                                          metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
+                                          metric_name : str = "Jarow",
+                                        #   metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
                                           max_count : int = 20) -> List[Course] :
         
+        metric_func : Callable[[str, str], Union[int, float]] = RankingSystem._jarow_distance
+        if metric_name == "Jarow":
+            metric_func : Callable[[str, str], Union[int, float]] = RankingSystem._jarow_distance
+        if metric_name == "Levenshtain":
+            metric_func : Callable[[str, str], Union[int, float]] = RankingSystem._levenshtain_distance
+
         metric_and_course_list = []
 
         for course_short_name, course in self.courses.items():
             metric = metric_func(course_req, course.full_name)
+            metric_1 = metric_func(course_req, course_short_name)
+            metric = min(metric, metric_1)
+
             metric_and_course_list.append((metric, course))
+
 
         metric_and_course_list = sorted(metric_and_course_list, key=lambda x: x[0], reverse=False)
         
@@ -241,9 +277,11 @@ class RankingSystem:
         return result_tag
     
     def get_top_suitable_courses_by_text(self, course_req : str,
-                                          metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
+                                          metric_name : str = "Jarow",
+                                        #   metric_func : Callable[[str, str], Union[int, float]] = _levenshtain_distance,
                                           max_count : int = 20) -> List[CourseJSON]:
-        top_courses = self._get_top_suitable_courses_by_text(course_req)
+        top_courses = self._get_top_suitable_courses_by_text(course_req, metric_name=metric_name)
+
         top_courses_json = [Course._course_to_json(course) for course in top_courses]
         return top_courses_json
 

@@ -6,11 +6,12 @@ sys.path.append(os.path.dirname(__file__))
 from typing import Callable, Union, List, Tuple, Dict
 from struct_data.aliases import TagId, TagTitle, CourseShortName, \
     ChatBotId, FieldOfKnowledge, StrPath, \
-    CourseJSON, UserJSON
+    CourseJSON, UserJSON, FeedbackJSON
 
 from struct_data.tag import Tag
 from struct_data.user import User
 from struct_data.course import Course
+from struct_data.feedback import Feedback
 
 from simple_data.simpleCourses import simple_courses
 from simple_data.simpleUsers import simple_users
@@ -35,6 +36,7 @@ class IO_RankingSystem:
     PATH_TO_COURSES_TXT = os.path.join(PATH_TO_DIR_DATA, "courses_txt")
     PATH_TO_DIR_ALL_TAGS = os.path.join(PATH_TO_DIR_DATA, "all_tags")
     PATH_TO_DIR_USERS_JSON = os.path.join(PATH_TO_DIR_DATA, "users")
+    PATH_TO_DIR_PREPARED_COURSES_TAGS = os.path.join(PATH_TO_DIR_DATA, "courses_tags_prepared")
 
     # 
     ALL_TAGS : Dict[TagTitle, TagTitle] = None
@@ -85,6 +87,36 @@ class IO_RankingSystem:
                     courses_tags_str[course_short_name] = tags_dict
 
         return courses_tags_str
+
+    @staticmethod
+    def _save_courses_tags(courses : Dict[CourseShortName, Dict[TagTitle, Tag]]):
+        field_of_knowledge_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_COURSES_TAGS)
+        path_0 = os.path.join(IO_RankingSystem.PATH_TO_DIR_PREPARED_COURSES_TAGS)
+        if not os.path.isdir(path_0):
+            os.mkdir(path_0)
+
+        for field_of_knowledge in field_of_knowledge_list:
+            path_to_dir_fok = os.path.join(IO_RankingSystem.PATH_TO_DIR_COURSES_TAGS, field_of_knowledge)
+            path_1 = os.path.join(path_0, field_of_knowledge)
+            if not os.path.isdir(path_1):
+                os.mkdir(path_1)
+
+            for subdir_fok_name in sorted(os.listdir(path_to_dir_fok)):
+                path_to_final_dir = os.path.join(path_to_dir_fok, subdir_fok_name)
+                path_2 = os.path.join(path_1, subdir_fok_name)
+                if not os.path.isdir(path_2):
+                    os.mkdir(path_2)
+                for file_name in os.listdir(path_to_final_dir):
+                    # AlgGrS.json
+                    course_short_name =  file_name.split(".")[0]
+                    path_3 = os.path.join(path_2, file_name)
+                    if course_short_name in courses:
+                        cur_courses = courses[course_short_name]
+                        IO_RankingSystem._save(Course._course_to_json(cur_courses), 
+                                               path_3)
+            
+
+        return
 
     @staticmethod
     def _get_courses_jsons():
@@ -202,36 +234,22 @@ class IO_RankingSystem:
     
     # __USER
 
+    # FEEDBACK
+    @staticmethod
+    def save_feedback(id: int,
+                        # course_id: int,
+                        short_name: CourseShortName,
+                        author_id: int,
+                        date: str,
+                        text: str):
+        Feedback()
+        
+
+    # ____FEEDBACK
+
 if __name__ == "__main__":
     io_rk = IO_RankingSystem()  
 
-    courses_str = io_rk._collect_all_courses_tags()
-    # print(courses_str)
 
-    # courses_json = io_rk._get_courses_jsons()
-    # print(courses_json)
-
-    # io_rk._all_tags(is_save=True)
-
-    # courses = io_rk.get_all_courses()
-    # pprint.pprint(courses["AlgGrS"])
-
-    # io_rk.save_user(chat_id=2, name="Komnatskiy", direction="Науки о Данных", email="st022323@gmail.com")
-
-    # user = io_rk.load_user(chat_id=2)
-
-    # io_rk.save_user(chat_id=1, name="Anufree")
-    # print(user)
-
-    # ok = io_rk.add_tag_to_user(chat_id=1, tag_title="Матан")
-    # print(ok)
-    # ok = io_rk.add_tag_to_user(chat_id=1, tag_title="теория категорий")
-    # print(ok)
-    # io_rk.add_tag_to_user(chat_id=2, tag="Алгебра")
-
-    # io_rk.delete_tag_from_user(chat_id=2, tag="Матан")
-
-    # user = io_rk.load_user(chat_id=1)
     
-    users = io_rk.get_all_users_json()
-    pprint.pprint(users)
+    

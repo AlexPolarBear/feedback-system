@@ -13,3 +13,4 @@ FieldOfKnowledge = str
 CourseJSON = dict
 TagJSON = dict
 UserJSON = dict
+FeedbackJSON = dict
