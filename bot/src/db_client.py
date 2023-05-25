@@ -51,7 +51,7 @@ class DB_Client:
     def __get(url_suffix):
         # Temporary plug
         case = {
-            '/courses': '../data/course.json',
+            '/courses': '../data/courses.json',
             '/metrics': '../data/metrics.json',
             '/feedback': '../data/feedback.json',
             '/score': '../data/score.json',

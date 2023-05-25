@@ -7,7 +7,7 @@ from json_interface import JSON_Interface
 class DB_Proxy_Interface:
     @staticmethod
     def get_all_courses():
-        filename = '../data/course.json'
+        filename = '../data/courses.json'
         if os.path.exists(filename):
             return JSON_Interface.load_data_from_json(filename)
         courses = DB_Client.get_all_courses()
@@ -28,7 +28,7 @@ class DB_Proxy_Interface:
 
     @staticmethod  
     def get_all_feedback():
-        filename = '../data/review.json'
+        filename = '../data/feedback.json'
         if DB_Client.feedback_need_to_update == False and os.path.exists(filename):
             return JSON_Interface.load_data_from_json(filename)
         feedback = DB_Client.get_all_feedback()

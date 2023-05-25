@@ -8,7 +8,8 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from config import bot_token
 from db_proxy_interface import DB_Proxy_Interface
-from context import get_courses_by_user_request, get_tags_by_user_request 
+from ranking_interface import Ranking_Interface 
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -85,7 +86,7 @@ async def review_handler_text(message: types.Message, state: FSMContext):
     # await get_courses_by_user_course_name(message.chat.id, state)
     user_data = await state.get_data()
     course_name = user_data.get('course_name')
-    courses = get_courses_by_user_request(request=course_name)
+    courses = Ranking_Interface.get_courses_by_user_request(request=course_name)
     await state.update_data(
         {
             'course_list': courses
@@ -112,6 +113,9 @@ async def review_handler_text(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
+    chat_id = message.chat.id
+    Ranking_Interface.add_user_if_not_exists(chat_id)
+    # print('bebra')
     await show_main_page(message.chat.id)
 
 
@@ -138,7 +142,7 @@ async def show_course_list(chat_id, state: FSMContext):
     course_list = user_data.get('course_list')
     keyboard = InlineKeyboardMarkup()
     for course in course_list:
-        button = InlineKeyboardButton(text=course['name'], callback_data='course_{}_'.format(course['id']))
+        button = InlineKeyboardButton(text=course['full_name'], callback_data='course_{}_'.format(course['id']))
         keyboard.add(button)
     user_data = await state.get_data()
     back_button = InlineKeyboardButton(text='Назад', callback_data='search_courses')
@@ -158,13 +162,9 @@ async def process_callback_course(callback_query: types.CallbackQuery, state: FS
         }
     )
     course = DB_Proxy_Interface.get_course_by_id(course_id)
-#     text = f"""
-# Курс: {course['name']} ({course['type']})
-# Преподаватель: {course['teacher']}
-#     """
     text = f"""
-<i><b>Курс: {course['name']} ({course['type']})
-Преподаватель: {course['teacher']}</b></i>
+<i><b>Курс: {course['full_name']} ({course['size']})
+Преподаватель: {course['lecturer_id']}</b></i>
 """
 
     keyboard = InlineKeyboardMarkup()
@@ -208,8 +208,8 @@ async def show_feedback_for_course(chat_id, state: FSMContext, drop_new_message=
     course = DB_Proxy_Interface.get_course_by_id(course_id)
     metrics = DB_Proxy_Interface.get_all_metrics()
     text = f"""
-<i><b>Курс: {course['name']} ({course['type']})
-Преподаватель: {course['teacher']}</b></i>
+<i><b>Курс: {course['full_name']} ({course['size']})
+Преподаватель: {course['lecturer_id']}</b></i>
 
 Средние метрики:
 Успеваемость: 3.5/5.0
@@ -255,8 +255,8 @@ async def show_review_for_course(chat_id, state: FSMContext, drop_new_message=Tr
     course = DB_Proxy_Interface.get_course_by_id(course_id)
     review = DB_Proxy_Interface.get_feedback_by_course_id(course_id)
     text = f"""
-<i><b>Курс: {course['name']} ({course['type']})
-Преподаватель: {course['teacher']}</b></i>   
+<i><b>Курс: {course['full_name']} ({course['size']})
+Преподаватель: {course['lecturer_id']}</b></i>   
 """
     for index, review_item in enumerate(review):
         text += f"""
@@ -299,8 +299,8 @@ async def process_callback_feedback_addition(callback_query: types.CallbackQuery
     back_button = InlineKeyboardButton(text='Назад', callback_data='course_{}_edit_last_message'.format(course_id))
     keyboard.add(back_button)
     text = f""" 
-<i><b>Курс: {course['name']} ({course['type']})
-Преподаватель: {course['teacher']}</b></i>
+<i><b>Курс: {course['full_name']} ({course['size']})
+Преподаватель: {course['lecturer_id']}</b></i>
 
 Выберите метрику для оценивания или оставьте отзыв:
 """
@@ -337,8 +337,8 @@ async def suggest_estimate_metric(chat_id, state: FSMContext, drop_new_message=T
     back_button = InlineKeyboardButton(text='Назад', callback_data='add_feedback')
     keyboard.add(back_button)
     text = f"""
-<i><b>Курс: {course['name']} ({course['type']})
-Преподаватель: {course['teacher']}</b></i>
+<i><b>Курс: {course['full_name']} ({course['size']})
+Преподаватель: {course['lecturer_id']}</b></i>
     
 Метрика: <b>{metric_name}</b>
 """ 
@@ -424,8 +424,8 @@ async def process_callback_review_addition(callback_query: types.CallbackQuery, 
     back_button = InlineKeyboardButton(text='Отмена', callback_data='add_feedback')
     keyboard.add(back_button)
     text = f"""
-<i><b>Курс: {course['name']} ({course['type']})
-Преподаватель: {course['teacher']}</b></i>
+<i><b>Курс: {course['full_name']} ({course['size']})
+Преподаватель: {course['lecturer_id']}</b></i>
 
 Напишите ваш отзыв
 """
@@ -510,10 +510,8 @@ async def process_callback(callback_query: types.CallbackQuery, state: FSMContex
 async def review_handler_text(message: types.Message, state: FSMContext):
     text_with_preferences = message.text
     await state.reset_state(with_data=False)
-    # await get_courses_by_user_course_name(message.chat.id, state)
-    # user_data = await state.get_data()
-    # course_name = user_data.get('course_name')
-    tags = get_tags_by_user_request(request=text_with_preferences)
+    tags = Ranking_Interface.get_tag_titles_by_user_request(request=text_with_preferences)
+    print(tags)
     await state.update_data(
         {
             'tag_list': tags,
@@ -525,14 +523,15 @@ async def review_handler_text(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data == 'select_tags_from_list', state='*')
 async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
-    tags = DB_Proxy_Interface.get_all_tags()
+    chat_id = callback_query.from_user.id
+    tags = Ranking_Interface.get_all_unselected_tags(chat_id)
     await state.update_data(
         {
-            'tag_list': tags,
+            'tag_list': tags[:min(len(tags), 20)],
             'last_callback_data': 'set_courses_preferences'
         }
     )
-    await show_tag_list(callback_query.from_user.id, state)
+    await show_tag_list(chat_id, state)
     await bot.answer_callback_query(callback_query.id)
 
 
@@ -540,8 +539,9 @@ async def show_tag_list(chat_id, state: FSMContext):
     user_data = await state.get_data()
     tag_list = user_data.get('tag_list')
     keyboard = InlineKeyboardMarkup()
-    for tag in tag_list:
-        button = InlineKeyboardButton(text=tag['title'], callback_data='save-tag-{}'.format(tag['id']))
+    for tag_title in tag_list:
+        print(tag_title)
+        button = InlineKeyboardButton(text=tag_title, callback_data='save-tag-{}'.format(tag_title))
         keyboard.add(button)
     user_data = await state.get_data()
     last_callback_data = user_data.get('last_callback_data')
@@ -551,23 +551,16 @@ async def show_tag_list(chat_id, state: FSMContext):
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('save-tag-'), state='*')
 async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
-    tag_id = int(callback_query.data[9:])
-    user_data = await state.get_data()
-    if 'user_tags' in user_data:
-        user_tags = user_data.get('user_tags')
-    else:
-        user_tags = []
-    new_tag = DB_Proxy_Interface.get_tag_by_id(tag_id)
-    user_tags.append(new_tag)
-    tag_list = user_data.get('tag_list')
-    tag_list = [tag for tag in tag_list if tag != new_tag]
+    tag_title = callback_query.data[9:]
+    chat_id = callback_query.from_user.id
+    Ranking_Interface.add_tag_to_user(chat_id, tag_title)
+    tags = Ranking_Interface.get_all_unselected_tags(chat_id)
+    print(len(tags))
     await state.update_data(
         {
-            'user_tags': user_tags,
-            'tag_list': tag_list
+            'tag_list': tags[:min(len(tags), 20)]
         }
     )
-    chat_id = callback_query.from_user.id
     await bot.send_message(chat_id, text='Тег успешно сохранен')
     await show_tag_list(chat_id, state)
     await bot.answer_callback_query(callback_query.id)
@@ -580,17 +573,18 @@ async def process_callback(callback_query: types.CallbackQuery, state: FSMContex
     await bot.answer_callback_query(callback_query.id)
 
 async def show_user_tags(chat_id, state: FSMContext):
-    user_data = await state.get_data()
-    if 'user_tags' in user_data:
-        user_tags = user_data.get('user_tags')
-    else:
-        user_tags = []
+    # user_data = await state.get_data()
+    # if 'user_tags' in user_data:
+    #     user_tags = user_data.get('user_tags')
+    # else:
+    #     user_tags = []
+    user_tag_titles = Ranking_Interface.get_user_tag_titles(chat_id)
     text = 'Нажмите на теги, которые хотите удалить'
-    if len(user_tags) == 0:
+    if len(user_tag_titles) == 0:
         text = 'У вас пока нет никаких тегов'
     keyboard = InlineKeyboardMarkup()
-    for tag in user_tags:
-        button = InlineKeyboardButton(text=tag['title'], callback_data='delete-tag-{}'.format(tag['id']))
+    for tag_title in user_tag_titles:
+        button = InlineKeyboardButton(text=tag_title, callback_data='delete-tag-{}'.format(tag_title))
         keyboard.add(button)
     back_button = InlineKeyboardButton(text='Назад', callback_data='set_courses_preferences')
     keyboard.add(back_button)
@@ -599,17 +593,19 @@ async def show_user_tags(chat_id, state: FSMContext):
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('delete-tag-'), state='*')
 async def process_callback(callback_query: types.CallbackQuery, state: FSMContext):
-    tag_id = int(callback_query.data[11:])
-    user_data = await state.get_data()
-    user_tags = user_data.get('user_tags')
-    tag_to_delete = DB_Proxy_Interface.get_tag_by_id(tag_id)
-    user_tags = [tag for tag in user_tags if tag != tag_to_delete]
-    await state.update_data(
-        {
-            'user_tags': user_tags
-        }
-    )
+    tag_title = callback_query.data[11:]
     chat_id = callback_query.from_user.id
+    # user_data = await state.get_data()
+    # user_tags = user_data.get('user_tags')
+    Ranking_Interface.delete_tag_from_user(chat_id, tag_title)
+    # tag_to_delete = DB_Proxy_Interface.get_tag_by_id(tag_id)
+    # user_tags = [tag for tag in user_tags if tag != tag_to_delete]
+    # await state.update_data(
+    #     {
+    #         'user_tags': user_tags
+    #     }
+    # )
+    # chat_id = callback_query.from_user.id
     await bot.send_message(chat_id, text='Тег успешно удален')
     await show_user_tags(chat_id, state)
     await bot.answer_callback_query(callback_query.id)
