@@ -4,8 +4,8 @@ from mysql.connector import Error
 
 def create_connection():
     
-    with open('mysql_password.txt', 'r', encoding='utf-8-sig') as fp:
-        mysql_password = fp.read().rstrip()
+    # with open('mysql_password.txt', 'r', encoding='utf-8-sig') as fp:
+    #     mysql_password = fp.read().rstrip()
 
     connection = None
     try:
@@ -14,7 +14,7 @@ def create_connection():
             port=3306,
             user='root',
             passwd='password',
-            database='feedback',
+            # database='feedback',
         )
         connection.autocommit = True
         print("Connection to MySQl DB successful")

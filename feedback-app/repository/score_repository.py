@@ -15,15 +15,22 @@ class ScoreRepository:
         self.connection = create_connection()
 
 
-    def add_score(self, score: Scores):
+    def add_or_update_score(self, score: Scores):
         """
         Create and add a new score in table.
+        If score already exist, just updates it by id.
         """
         
         cursor = self.connection.cursor()
         query = """
         INSERT INTO scores (metric_id, course_id, author_id, date, score) 
         VALUES (%s, %s, %s, %s, %s)
+        ON DUPLICATE KEY 
+            UPDATE metric_id = metric_id,
+                course_id = course_id, 
+                author_id = author_id, 
+                date = date, 
+                score = score
         """
 
         try:
@@ -101,21 +108,21 @@ class ScoreRepository:
         cursor.close()
 
 
-    def update_score(self, id:int, score: Scores):
-        """
-        Update score by id.
-        """
+    # def update_score(self, id:int, score: Scores):
+    #     """
+    #     Update score by id.
+    #     """
 
-        cursor = self.connection.cursor()
-        query = """
-        UPDATE scores
-        SET date = %s, score = %s WHERE id = %s
-        """
+    #     cursor = self.connection.cursor()
+    #     query = """
+    #     UPDATE scores
+    #     SET date = %s, score = %s WHERE id = %s
+    #     """
 
-        try:
-            cursor.execute(query, [score.date,
-                                   score.score, id])
-            print("Score update successfully")
-        except Error as err:
-            print(f"The error '{err}' occured")
-        cursor.close()
+    #     try:
+    #         cursor.execute(query, [score.date,
+    #                                score.score, id])
+    #         print("Score update successfully")
+    #     except Error as err:
+    #         print(f"The error '{err}' occured")
+    #     cursor.close()

@@ -1,5 +1,4 @@
 import json
-# import logging
 from flask import Response, request
 from datetime import datetime
 
@@ -29,7 +28,7 @@ def get_one_score(id: int):
 
 
 @bp.route("/scores", methods=['POST'])
-def add_score():
+def add_or_upd_score():
     content = request.get_json()
     metric_id = content.get("metric_id", None)
     course_id = content.get("course_id", None)
@@ -54,7 +53,7 @@ def add_score():
     entity.date = datetime.now()
     entity.score = score
 
-    repository.add_score(entity)
+    repository.add_or_update_score(entity)
     return Response(json.dumps({"message": "score успешно сохранен"}), 
                     status=200, 
                     mimetype='application/json')
@@ -73,21 +72,21 @@ def delete_score(id: int):
                     status=200,
                     mimetype='application/json')
 
-@bp.route("/scores/update/<id>", methods=['POST'])
-def update_score(id: int):
-    content = request.get_json()
-    score = content.get("score", None)
+# @bp.route("/scores/update/<id>", methods=['POST'])
+# def update_score(id: int):
+#     content = request.get_json()
+#     score = content.get("score", None)
 
-    if score is None or type(score) is not int:
-        return Response(json.dumps({"message": "score должен быть числом"}), 
-                        status=422,
-                        mimetype='application/json')
+#     if score is None or type(score) is not int:
+#         return Response(json.dumps({"message": "score должен быть числом"}), 
+#                         status=422,
+#                         mimetype='application/json')
 
-    entity = Scores()
-    entity.date = datetime.now()
-    entity.score = score
+#     entity = Scores()
+#     entity.date = datetime.now()
+#     entity.score = score
 
-    repository.update_score(id, entity)
-    return Response(json.dumps({"message": "score успешно изменен"}), 
-                    status=200,
-                    mimetype='application/json')
+#     repository.update_score(id, entity)
+#     return Response(json.dumps({"message": "score успешно изменен"}), 
+#                     status=200,
+#                     mimetype='application/json')

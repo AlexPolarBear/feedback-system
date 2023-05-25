@@ -25,7 +25,7 @@ def request() -> bs:
         print("Sorry, something wrong with response")
 
 
-def every_field() -> list(dict, bs):
+def every_field():
     """
     This method searches for field of knowledge data.
     """
