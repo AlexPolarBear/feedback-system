@@ -163,7 +163,7 @@ def add_courses_in_table():
             entity.year = datetime.today().strftime('%Y')
             for lec in correct_teacher:
                 entity.lecturer_id = lecturer_repository.get_id_by_lecturer_name(lec)[0][0]
-                course_repository.add_course(entity)
+                course_repository.add_courses(entity)
 
 
 if __name__ == "__main__":

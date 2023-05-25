@@ -2,7 +2,7 @@
 from mysql.connector import Error
 from typing import List
 
-from model.feedback import Feedback
+from model.feedback import Feedback, Feedback_get
 from model.connector import create_connection
 
 
@@ -48,13 +48,13 @@ class FeedbackRepository:
             id, course_id, author_id, date, text
         FROM feedbacks
         """
-        courses: List[Feedback] = []
+        courses: List[Feedback_get] = []
 
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
             for row in result:
-                courses.append(Feedback(row[0], row[1], row[2], row[3], row[4]))
+                courses.append(Feedback_get(row[0], row[1], row[2], row[3], row[4]))
             return courses
         except Error as err:
             print(f"The error '{err}' occured")

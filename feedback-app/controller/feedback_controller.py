@@ -45,7 +45,7 @@ def add_feedback():
 @bp.route("/feedback", methods=['GET'])
 def get_all_feedbacks():
     feedbacks = repository.get_all_feedbacks()
-    return json.dump(feedbacks, default=lambda x: x.__dict__)
+    return json.dump(feedbacks, default=lambda x: x.__dict__, ensure_ascii=False)
 
 
 @bp.route("/feedback/<id>", methods=['GET'])
@@ -56,7 +56,7 @@ def get_one_feedback(id: int):
                                    ensure_ascii=False),
                         status=422,
                         mimetype='application/json')
-    return feedback.__dict__
+    return json.dump(feedback, default=lambda x: x.__dict__, ensure_ascii=False)
 
 
 @bp.route("/feedback/delete/<id>", methods=['DELETE'])
@@ -90,4 +90,3 @@ def update_feedback(id: int):
     return Response(json.dumps({"message": "отзыв успешно изменен"}), 
                     status=200,
                     mimetype='application/json')
-

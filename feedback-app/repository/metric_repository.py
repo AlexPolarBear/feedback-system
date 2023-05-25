@@ -2,7 +2,7 @@
 from mysql.connector import Error
 from typing import List
 
-from model.metric import Metric
+from model.metric import Metric, Metric_get
 from model.connector import create_connection
 
 
@@ -26,12 +26,12 @@ class MetricRepository:
         FROM metrics
         """
 
-        metrics: List[Metric] = []
+        metrics: List[Metric_get] = []
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
             for row in result:
-                metrics.append(Metric(row[0], row[1]))
+                metrics.append(Metric_get(row[0], row[1]))
             return metrics
         except Error as err:
             print(f"The error '{err}' occurred")
@@ -55,7 +55,7 @@ class MetricRepository:
         if row is None:
             return None
         else:
-            return Metric(row[0], row[1])
+            return Metric_get(row[0], row[1])
         
 
     def add_metric(self, metric: Metric):

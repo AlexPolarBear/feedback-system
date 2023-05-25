@@ -2,7 +2,7 @@
 from mysql.connector import Error
 from typing import List
 
-from model.scores import Scores
+from model.scores import Scores, Scores_get
 from model.connector import create_connection
 
 
@@ -56,13 +56,13 @@ class ScoreRepository:
             id, metric_id, course_id, author_id, date, score
         FROM scores
         """
-        courses: List[Scores] = []
+        courses: List[Scores_get] = []
 
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
             for row in result:
-                courses.append(Scores(row[0], row[1], row[2], row[3], row[4], row[5]))
+                courses.append(Scores_get(row[0], row[1], row[2], row[3], row[4], row[5]))
             return courses
         except Error as err:
             print(f"The error '{err}' occured")

@@ -12,9 +12,9 @@ def create_connection():
         connection = mysql.connector.connect(
             host='db',
             port=3306,
-            user='root',
+            user='user_name',
             passwd='password',
-            # database='feedback',
+            database='feedback',
         )
         connection.autocommit = True
         print("Connection to MySQl DB successful")

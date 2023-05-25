@@ -2,7 +2,7 @@
 from typing import List, Optional
 from mysql.connector import Error
 
-from model.course import Course
+from model.course import Course, Course_get
 from model.connector import create_connection
 
 
@@ -15,7 +15,7 @@ class CourseRepository:
         self.connection = create_connection()
 
 
-    def get_all(self) -> List[Course]:
+    def get_all(self) -> List[Course_get]:
         """
         This method returns the list of all courses from database.
         """
@@ -28,13 +28,13 @@ class CourseRepository:
             size, description, direction, lecturer_id, year
         FROM courses
         """
-        courses: List[Course] = []
+        courses: List[Course_get] = []
 
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
             for row in result:
-                courses.append(Course(row[0], row[1], row[2], row[3], row[4], 
+                courses.append(Course_get(row[0], row[1], row[2], row[3], row[4], 
                                       row[5], row[6], row[7], row[8]))
             return courses
         except Error as err:
@@ -42,7 +42,7 @@ class CourseRepository:
         cursor.close()
 
 
-    def get_one(self, id: int) -> Optional[Course]:
+    def get_one(self, id: int) -> Optional[Course_get]:
         """
         This method gets one course by its id.
         """
@@ -61,11 +61,11 @@ class CourseRepository:
         if row is None:
             return None
         else:
-            return Course(row[0], row[1], row[2], row[3], row[4], 
+            return Course_get(row[0], row[1], row[2], row[3], row[4], 
                           row[5], row[6], row[7], row[8])
         
 
-    def add_course(self, course: Course):
+    def add_courses(self, course: Course):
         """
         Method just adds new course in the end of table.
         """
@@ -74,7 +74,7 @@ class CourseRepository:
         query = """
         INSERT INTO courses (
             field_of_knowledge, short_name, full_name, size, 
-            description, direction, lecturer_id, semester
+            description, direction, lecturer_id, year
             )
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
@@ -121,7 +121,7 @@ class CourseRepository:
         query = """
         UPDATE courses
         SET field_of_knowledge = %s, short_name = %s, full_name = %s, size = %s, 
-            description = %s, direction = %s, lecturer_id = %s, semester = %s
+            description = %s, direction = %s, lecturer_id = %s, year = %s
         WHERE id = %s
         """
 

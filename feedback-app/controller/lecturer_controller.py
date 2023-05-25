@@ -9,7 +9,7 @@ from repository.lecturer_repository import LecturerRepository
 repository = LecturerRepository()
 
 
-@bp.route("/lecturers", methods=['PUT'])
+@bp.route("/lecturers", methods=['POST'])
 def add_lecturer():
     content = request.get_json()
     name = content.get("name", None)
@@ -54,7 +54,7 @@ def delete_lecturer(id: int):
 @bp.route("/lecturers", methods=['GET'])
 def get_all_lecturer():
     lecturers = repository.get_all_lecturer()
-    return json.dumps(lecturers, default=lambda x: x.__dict__)
+    return json.dumps(lecturers, default=lambda x: x.__dict__, ensure_ascii=False)
 
 
 @bp.route("/lecturers/id/<id>", methods=['GET'])
@@ -65,7 +65,7 @@ def get_one_lecturer(id: int):
                                    ensure_ascii=False),
                         status=422,
                         mimetype='application/json')
-    return lecturer.__dict__
+    return json.dumps(lecturer, default=lambda x: x.__dict__, ensure_ascii=False)
 
 
 @bp.route("/lecturers/update/<id>", methods=['POST'])
@@ -85,4 +85,3 @@ def update_lecturer(id: int):
     return Response(json.dumps({"message": "лектор успешно изменен"}), 
                     status=200,
                     mimetype='application/json')
-

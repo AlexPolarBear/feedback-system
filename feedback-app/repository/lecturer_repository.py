@@ -2,7 +2,7 @@
 from mysql.connector import Error
 from typing import List
 
-from model.lecturer import Lecturer
+from model.lecturer import Lecturer, Lecturer_get
 from model.connector import create_connection
 
 
@@ -40,7 +40,7 @@ class LecturerRepository:
         Getting lecturers id by it's name.
         """
 
-        cursor = self.connection.cursor()
+        cursor = self.connection.cursor(buffered=True)
         query = """
         SELECT id FROM lecturers WHERE name = %s
         """
@@ -88,12 +88,12 @@ class LecturerRepository:
         FROM lecturers
         """
 
-        lecturers: List[Lecturer] = []
+        lecturers: List[Lecturer_get] = []
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
             for row in result:
-                lecturers.append(Lecturer(row[0], row[1]))
+                lecturers.append(Lecturer_get(row[0], row[1]))
             return lecturers
         except Error as err:
             print(f"The error '{err}' occurred")
@@ -117,7 +117,7 @@ class LecturerRepository:
         if row is None:
             return None
         else:
-            return Lecturer(row[0], row[1])
+            return Lecturer_get(row[0], row[1])
     
 
     def update_lecturer(self, id: int, lecturer: Lecturer):

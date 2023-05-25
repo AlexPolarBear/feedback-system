@@ -13,7 +13,7 @@ repository = ScoreRepository()
 @bp.route("/scores", methods=['GET'])
 def get_all_scores():
     scores = repository.get_all_scores()
-    return json.dump(scores, default=lambda x: x.__dict__)
+    return json.dump(scores, default=lambda x: x.__dict__, ensure_ascii=False)
 
 
 @bp.route("/scores/<id>", methods=['GET'])
@@ -24,7 +24,8 @@ def get_one_score(id: int):
                                    ensure_ascii=False),
                         status=422,
                         mimetype='application/json')
-    return score.__dict__
+    return json.dump(score, default=lambda x: x.__dict__, ensure_ascii=False)
+
 
 
 @bp.route("/scores", methods=['POST'])

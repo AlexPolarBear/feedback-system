@@ -12,7 +12,7 @@ repository = CourseRepository()
 @bp.route("/courses", methods=['GET'])
 def get_all_courses():
     courses = repository.get_all()
-    return json.dumps(courses, default=lambda x: x.__dict__)
+    return json.dumps(courses, default=lambda x: x.__dict__, ensure_ascii=False)
 
 
 @bp.route("/courses/<id>", methods=['GET'])
@@ -23,13 +23,13 @@ def get_one_course(id: int):
                                    ensure_ascii=False),
                         status=422,
                         mimetype='application/json')
-    return course.__dict__
+    return json.dumps(course, default=lambda x: x.__dict__, ensure_ascii=False)
 
 
-@bp.route("/courses/add", methods=['PUT'])
+@bp.route("/courses/add", methods=['POST'])
 def add_course():
     entity = new_get_json()
-    repository.add_course(entity)
+    repository.add_courses(entity)
     return Response(json.dumps({"message": "курс успешно сохранен"}, 
                                ensure_ascii=False), 
                     status=200, 
@@ -38,12 +38,12 @@ def add_course():
     
 @bp.route("/courses/delete/<id>", methods=['DELETE'])
 def delete_course(id: int):
-    course = repository.delete_course(id)
-    if course is None:
-        return Response(json.dumps({"message": "курс с данным id отсутсвует"}, 
-                                   ensure_ascii=False),
-                        status=422,
-                        mimetype='application/json')
+    repository.delete_course(id)
+    # if course is None:
+    #     return Response(json.dumps({"message": "курс с данным id отсутсвует"}, 
+    #                                ensure_ascii=False),
+    #                     status=422,
+    #                     mimetype='application/json')
     return Response(json.dumps({"message": "курс успешно удален"}, 
                                ensure_ascii=False), 
                     status=200, 
@@ -73,7 +73,7 @@ def new_get_json() -> Course:
     description = content.get("description", None)
     direction = content.get("direction", None)
     lecturer_id = content.get("lecturer_id", None)
-    semester = content.get("semester", None)
+    year = content.get("year", None)
 
     def response (field: str):
         if field is None or type(field) is not str:
@@ -87,7 +87,7 @@ def new_get_json() -> Course:
     response(size)
     response(direction)
     response(description)
-    response(semester)
+    response(year)
 
     if lecturer_id is None or type(lecturer_id) is not int:
         return Response(json.dumps({"message": "lecturer_id должен быть числом"}, 
@@ -103,5 +103,5 @@ def new_get_json() -> Course:
     entity.description = description
     entity.direction = direction
     entity.lecturer_id = lecturer_id
-    entity.year = semester
+    entity.year = year
     return entity
