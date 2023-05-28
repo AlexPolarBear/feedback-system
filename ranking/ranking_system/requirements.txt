@@ -1,0 +1,6 @@
+Levenshtein==0.21.0
+typing==3.10.0.0
+
+# for prepared tags, can be ignore
+nltk==3.8.1
+pymorphy2==0.9.1

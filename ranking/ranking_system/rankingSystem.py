@@ -238,7 +238,8 @@ class RankingSystem:
         user = self.users[chat_id]
 
         result_tag = self._get_top_suitable_tags_by_context(user, max_count)
-        result_tag_json = [Tag._tag_to_json(tag) for tag in result_tag]
+        # result_tag_json = [Tag._tag_to_json(tag) for tag in result_tag]
+        result_tag_json = [tag for tag in result_tag]
 
         return result_tag_json
 
@@ -284,6 +285,7 @@ class RankingSystem:
 
         top_courses_json = [Course._course_to_json(course) for course in top_courses]
         return top_courses_json
+        
 
     ## __COURSE_TEXT_TO_COURSE
     # __TOP_TAGS_FOR_SNIPPET

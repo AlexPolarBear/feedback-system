@@ -10,3 +10,9 @@ class Feedback:
     date: str
     text: str
 
+
+    @staticmethod
+    def _feedback_to_json(feedback : "Feedback"):
+        return feedback.__dict__
+    
+    

@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(__file__))
 
 # typing
 from typing import Callable, Union, List, Tuple, Dict
-from struct_data.aliases import TagId, TagTitle, CourseShortName, \
+from struct_data.aliases import TagId, TagTitle, CourseShortName, FeedbackId, \
     ChatBotId, FieldOfKnowledge, StrPath, \
     CourseJSON, UserJSON, FeedbackJSON
 
@@ -32,12 +32,18 @@ class IO_RankingSystem:
     PATH_TO_DIR_DATA = os.path.join(os.path.dirname(__file__), "relevant_data")
     # 
     PATH_TO_FILE_COURSES_JSON =  os.path.join(PATH_TO_DIR_DATA, "courses_json", "courses.json")
-    PATH_TO_DIR_COURSES_TAGS = os.path.join(PATH_TO_DIR_DATA, "courses_tags")
+    
+    # this is raw data
+    # PATH_TO_DIR_COURSES_TAGS = os.path.join(PATH_TO_DIR_DATA, "courses_tags")
+    PATH_TO_DIR_COURSES_TAGS = os.path.join(PATH_TO_DIR_DATA, "courses_tags_prepared")
+
+    PATH_TO_DIR_PREPARED_COURSES_TAGS = os.path.join(PATH_TO_DIR_DATA, "courses_tags_prepared")
     PATH_TO_COURSES_TXT = os.path.join(PATH_TO_DIR_DATA, "courses_txt")
     PATH_TO_DIR_ALL_TAGS = os.path.join(PATH_TO_DIR_DATA, "all_tags")
     PATH_TO_DIR_USERS_JSON = os.path.join(PATH_TO_DIR_DATA, "users")
     PATH_TO_DIR_PREPARED_COURSES_TAGS = os.path.join(PATH_TO_DIR_DATA, "courses_tags_prepared")
-
+    
+    PATH_TO_DIR_FEEDBACK = os.path.join(PATH_TO_DIR_DATA, "feedback")
     # 
     ALL_TAGS : Dict[TagTitle, TagTitle] = None
 
@@ -63,14 +69,22 @@ class IO_RankingSystem:
         return json.load(open(path, "r", encoding="utf-8"))
 
     @staticmethod
-    def _collect_all_courses_tags(field_of_knowledge_list : List[FieldOfKnowledge] = None) -> Dict[CourseShortName, Dict[TagTitle, Tag]]:
+    def _collect_all_courses_tags(field_of_knowledge_list : List[FieldOfKnowledge] = None,
+                                  path_to_dir_load : StrPath = PATH_TO_DIR_COURSES_TAGS, 
+                                  is_prepared : bool = True
+                                  ) -> Dict[CourseShortName, Dict[TagTitle, Tag]]:
+        if is_prepared:
+            path_to_dir_load : StrPath = IO_RankingSystem.PATH_TO_DIR_PREPARED_COURSES_TAGS 
+        else:
+            path_to_dir_load : StrPath = IO_RankingSystem.PATH_TO_DIR_COURSES_TAGS 
+
         if field_of_knowledge_list is None:
-            field_of_knowledge_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_COURSES_TAGS)
+            field_of_knowledge_list = os.listdir(path_to_dir_load)
         
         courses_tags_str : Dict[CourseShortName, List[TagTitle]] = dict()
 
         for field_of_knowledge in field_of_knowledge_list:
-            path_to_dir_fok = os.path.join(IO_RankingSystem.PATH_TO_DIR_COURSES_TAGS, field_of_knowledge)
+            path_to_dir_fok = os.path.join(path_to_dir_load, field_of_knowledge)
 
             for subdir_fok_name in sorted(os.listdir(path_to_dir_fok)):
                 path_to_final_dir = os.path.join(path_to_dir_fok, subdir_fok_name)
@@ -89,9 +103,13 @@ class IO_RankingSystem:
         return courses_tags_str
 
     @staticmethod
-    def _save_courses_tags(courses : Dict[CourseShortName, Dict[TagTitle, Tag]]):
+    def _save_courses_tags(courses : Dict[CourseShortName, Dict[TagTitle, Tag]], 
+                           path_to_dir_save : StrPath = PATH_TO_DIR_PREPARED_COURSES_TAGS):
+        
+        # path_to_dir_save : StrPath = IO_RankingSystem.PATH_TO_DIR_PREPARED_COURSES_TAGS
+
         field_of_knowledge_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_COURSES_TAGS)
-        path_0 = os.path.join(IO_RankingSystem.PATH_TO_DIR_PREPARED_COURSES_TAGS)
+        path_0 = os.path.join(path_to_dir_save)
         if not os.path.isdir(path_0):
             os.mkdir(path_0)
 
@@ -112,8 +130,10 @@ class IO_RankingSystem:
                     path_3 = os.path.join(path_2, file_name)
                     if course_short_name in courses:
                         cur_courses = courses[course_short_name]
-                        IO_RankingSystem._save(Course._course_to_json(cur_courses), 
-                                               path_3)
+                        # IO_RankingSystem._save(Course._course_to_json(cur_courses), path_3)
+                        IO_RankingSystem._save(Course._course_to_list_tags(cur_courses), path_3)
+                        
+
             
 
         return
@@ -147,9 +167,9 @@ class IO_RankingSystem:
         return tags_class
 
     @staticmethod
-    def get_all_courses() -> Dict[CourseShortName, Course]:
+    def get_all_courses(is_prepared : bool = True) -> Dict[CourseShortName, Course]:
         courses_jsons = IO_RankingSystem._get_courses_jsons()
-        courses_tags_str = IO_RankingSystem._collect_all_courses_tags()
+        courses_tags_str = IO_RankingSystem._collect_all_courses_tags(is_prepared=is_prepared)
         
         courses : Dict[CourseShortName, Course] = dict()
         for course in courses_jsons:
@@ -235,15 +255,46 @@ class IO_RankingSystem:
     # __USER
 
     # FEEDBACK
+    @staticmethod 
+    def _feedback_file_name(feedback: Feedback):
+        file_name = f"{feedback.short_name}_{feedback.author_id}.json"
+        return file_name
+
+
     @staticmethod
-    def save_feedback(id: int,
-                        # course_id: int,
+    def save_feedback(
+                        #course_id: int = None,
                         short_name: CourseShortName,
-                        author_id: int,
+                        author_id: ChatBotId,
                         date: str,
-                        text: str):
-        Feedback()
+                        text: str,
+                        feedback_id : FeedbackId = None):
+        feedback = Feedback(id = feedback_id,
+                    short_name=short_name,
+                    author_id=author_id,
+                    date=date,
+                    text=text)
         
+        file_name = IO_RankingSystem._feedback_file_name(feedback)
+        final_path = os.path.join(IO_RankingSystem.PATH_TO_DIR_FEEDBACK, file_name)
+        IO_RankingSystem._save(Feedback._feedback_to_json(feedback), final_path)
+
+    @staticmethod
+    def get_all_feedback() -> Dict[Tuple[CourseShortName, ChatBotId], FeedbackJSON]:
+        feedback_file_name_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_FEEDBACK)
+        fedback_json_dict : Dict[Tuple[CourseShortName, ChatBotId], FeedbackJSON] = dict()
+        for file_name in feedback_file_name_list:
+            # AbVar_1.json
+            course_short_name, chat_id = file_name.split('.')[0].split('_')
+            chat_id = int(chat_id)
+
+            path_to_file = os.path.join(IO_RankingSystem.PATH_TO_DIR_FEEDBACK, file_name)
+            feedback_json = IO_RankingSystem._load(path_to_file)
+
+            fedback_json_dict[(course_short_name, chat_id)] = feedback_json
+        
+        return fedback_json_dict
+
 
     # ____FEEDBACK
 
