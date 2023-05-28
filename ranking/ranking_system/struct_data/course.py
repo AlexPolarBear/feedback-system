@@ -43,3 +43,9 @@ class Course:
         course_json = json.load(open(StrPath, "w", encoding="utf-8"))
         course = Course._json_to_tag(course_json)
         return course
+    
+    @staticmethod
+    def _course_to_list_tags(course: "Course"):
+        list_tags = [tag_title for tag_title in course.context]
+
+        return list_tags

@@ -1,6 +1,10 @@
 CourseShortName = str
 TagTitle = str
+LecturerStr = str
+
 ChatBotId = int
+FeedbackId = int
+LecturerId = int
 
 TagId = int
 
@@ -13,3 +17,7 @@ FieldOfKnowledge = str
 CourseJSON = dict
 TagJSON = dict
 UserJSON = dict
+FeedbackJSON = dict
+
+
+ReviewText = str
