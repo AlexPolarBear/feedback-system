@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from struct_data.aliases import MetricStr, CourseShortName, ChatBotId, LecturerId, ScoreInt
+from struct_data.aliases import MetricStr, CourseShortName, \
+    ChatBotId, LecturerId, ScoreInt, MetricId 
 
 
 @dataclass
 class Score:
     id: int
-    metric: MetricStr
+    metric_id: MetricId
     course_short_name: CourseShortName
     author_id: ChatBotId
     lecturer_id: LecturerId

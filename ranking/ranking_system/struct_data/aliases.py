@@ -6,6 +6,7 @@ MetricStr = str
 ChatBotId = int
 FeedbackId = int
 LecturerId = int
+MetricId = int
 
 TagId = int
 
