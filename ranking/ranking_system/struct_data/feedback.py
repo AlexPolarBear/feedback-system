@@ -1,13 +1,13 @@
 from dataclasses import dataclass
-from .aliases import CourseShortName, ChatBotId, LecturerStr
+from .aliases import CourseShortName, ChatBotId, LecturerId
 
 @dataclass
 class Feedback:
     id: int # PK
     # course_id: int
-    short_name: CourseShortName # FK
+    course_short_name: CourseShortName # FK
     author_id: ChatBotId # FK
-    lecturer : LecturerStr # FK
+    lecturer_id : LecturerId # FK
     date: str
     text: str
 
