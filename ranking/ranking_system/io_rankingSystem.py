@@ -4,14 +4,17 @@ sys.path.append(os.path.dirname(__file__))
 
 # typing
 from typing import Callable, Union, List, Tuple, Dict
-from struct_data.aliases import TagId, TagTitle, CourseShortName, FeedbackId, LecturerStr, \
+from struct_data.aliases import TagId, \
+    TagTitle, CourseShortName, FeedbackId, LecturerId, MetricStr, LecturerStr, \
     ChatBotId, FieldOfKnowledge, StrPath, \
-    CourseJSON, UserJSON, FeedbackJSON
+    CourseJSON, UserJSON, FeedbackJSON, ScoreJSON,\
+    ScoreInt
 
 from struct_data.tag import Tag
 from struct_data.user import User
 from struct_data.course import Course
 from struct_data.feedback import Feedback
+from struct_data.score import Score
 
 from simple_data.simpleCourses import simple_courses
 from simple_data.simpleUsers import simple_users
@@ -44,6 +47,8 @@ class IO_RankingSystem:
     PATH_TO_DIR_PREPARED_COURSES_TAGS = os.path.join(PATH_TO_DIR_DATA, "courses_tags_prepared")
     
     PATH_TO_DIR_FEEDBACK = os.path.join(PATH_TO_DIR_DATA, "feedback")
+    PATH_TO_DIR_SCORES = os.path.join(PATH_TO_DIR_DATA, "scores")
+    PATH_TO_FILE_LECTURES = os.path.join(PATH_TO_DIR_DATA, "lecturers", "lecturers.json")
     # 
     ALL_TAGS : Dict[TagTitle, TagTitle] = None
 
@@ -257,32 +262,32 @@ class IO_RankingSystem:
     # FEEDBACK
     @staticmethod 
     def _feedback_file_name(feedback: Feedback):
-        file_name = f"{feedback.short_name}_{feedback.author_id}_{feedback.lecturer}.json"
+        file_name = f"{feedback.course_short_name}_{feedback.author_id}_{feedback.lecturer_id}.json"
         return file_name
 
     @staticmethod
     def _key_from_feedback(feedback: Feedback):
-        return (feedback.short_name, feedback.author_id, feedback.lecturer)
+        return (feedback.course_short_name, feedback.author_id, feedback.lecturer_id)
     
     @staticmethod
     def _key_from_feedback_json(feedback: FeedbackJSON):
-        return (feedback["short_name"], feedback["author_id"], feedback["lecturer"])
+        return (feedback["course_short_name"], feedback["author_id"], feedback["lecturer_id"])
     
 
     @staticmethod
     def save_feedback(
                         #course_id: int = None,
-                        short_name: CourseShortName,
+                        course_short_name: CourseShortName,
                         author_id: ChatBotId,
                         date: str,
                         text: str,
-                        lecturer : LecturerStr = None,
+                        lecturer_id : LecturerId = None,
                         feedback_id : FeedbackId = None):
         feedback = Feedback(id = feedback_id,
-                    short_name=short_name,
+                    course_short_name=course_short_name,
                     author_id=author_id,
                     date=date,
-                    lecturer=lecturer,
+                    lecturer_id=lecturer_id,
                     text=text)
         
         file_name = IO_RankingSystem._feedback_file_name(feedback)
@@ -290,13 +295,14 @@ class IO_RankingSystem:
         IO_RankingSystem._save(Feedback._feedback_to_json(feedback), final_path)
 
     @staticmethod
-    def get_all_feedback() -> Dict[Tuple[CourseShortName, ChatBotId, LecturerStr], FeedbackJSON]:
+    def get_all_feedback() -> Dict[Tuple[CourseShortName, ChatBotId, LecturerId], FeedbackJSON]:
         feedback_file_name_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_FEEDBACK)
-        fedback_json_dict : Dict[Tuple[CourseShortName, ChatBotId, LecturerStr], FeedbackJSON] = dict()
+        fedback_json_dict : Dict[Tuple[CourseShortName, ChatBotId, LecturerId], FeedbackJSON] = dict()
         for file_name in feedback_file_name_list:
             # AbVar_1.json
-            course_short_name, chat_id, lecturer = file_name.split('.')[0].split('_')
-            chat_id = int(chat_id)
+            course_short_name, chat_id, lecturer_id = file_name.split('.')[0].split('_')
+            # chat_id = int(chat_id)
+
 
             path_to_file = os.path.join(IO_RankingSystem.PATH_TO_DIR_FEEDBACK, file_name)
             feedback_json = IO_RankingSystem._load(path_to_file)
@@ -305,9 +311,71 @@ class IO_RankingSystem:
             fedback_json_dict[IO_RankingSystem._key_from_feedback_json(feedback_json)] = feedback_json
         
         return fedback_json_dict
-
-
     # ____FEEDBACK
+
+    # Score
+    @staticmethod
+    def _score_file_name(score: Score):
+        file_name = f"{score.course_short_name}_{score.author_id}_{score.metric}_{score.lecturer_id}.json"
+        return file_name
+    
+    @staticmethod
+    def _key_from_score(score: Score) -> Tuple[CourseShortName, ChatBotId, MetricStr, LecturerId]:
+        return (score.course_short_name, score.author_id, score.metric, score.lecturer_id)
+    
+    @staticmethod
+    def _key_from_score_json(score: Score) -> Tuple[CourseShortName, ChatBotId, MetricStr, LecturerId]:
+        return (score["course_short_name"], score["author_id"], score["metric"], score["lecturer_id"])
+
+    @staticmethod
+    def save_score(metric: MetricStr,
+                    course_short_name: CourseShortName,
+                    author_id: ChatBotId,
+                    score: ScoreInt, 
+                    lecturer_id: LecturerId = None, 
+                    date : str = None):
+        score = Score(
+            id=None,
+            metric=metric,
+            course_short_name=course_short_name,
+            author_id=author_id,
+            score=score,
+            lecturer_id=lecturer_id,
+            date=date
+        )
+
+        file_name = IO_RankingSystem._score_file_name(score)
+        final_path = os.path.join(IO_RankingSystem.PATH_TO_DIR_SCORES, file_name)
+        IO_RankingSystem._save(Score._score_to_json(score), final_path)
+
+    @staticmethod
+    def get_all_score() -> Dict[Tuple[CourseShortName, ChatBotId, MetricStr, LecturerId], ScoreJSON]:
+        score_file_name_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_SCORES)
+        score_json_dict : Dict[Tuple[CourseShortName, ChatBotId, MetricStr, LecturerId], ScoreJSON] = dict()
+        for file_name in score_file_name_list:
+            # AbVar_1.json
+            course_short_name, chat_id, metric, lecturer_id = file_name.split('.')[0].split('_')
+            # chat_id = int(chat_id)
+
+            path_to_file = os.path.join(IO_RankingSystem.PATH_TO_DIR_SCORES, file_name)
+            score_json = IO_RankingSystem._load(path_to_file)
+
+            # fedback_json_dict[(course_short_name, chat_id, lecturer)] = feedback_json
+            score_json_dict[IO_RankingSystem._key_from_score_json(score_json)] = score_json
+
+        return score_json_dict
+    # __Score
+
+    # Lecturers
+    @staticmethod
+    def get_all_lecturers():
+        
+        #  LecturerId in STRING format !!!!!!!!!!!!!!! 
+        lecturers_json : Dict[LecturerId, LecturerStr] =  IO_RankingSystem._load(IO_RankingSystem.PATH_TO_FILE_LECTURES)
+
+        return lecturers_json
+        
+    # __Lecturers
 
 if __name__ == "__main__":
     io_rk = IO_RankingSystem()  
