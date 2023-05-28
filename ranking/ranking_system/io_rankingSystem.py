@@ -6,6 +6,7 @@ sys.path.append(os.path.dirname(__file__))
 from typing import Callable, Union, List, Tuple, Dict
 from struct_data.aliases import TagId, \
     TagTitle, CourseShortName, FeedbackId, LecturerId, MetricStr, LecturerStr, \
+    MetricId, \
     ChatBotId, FieldOfKnowledge, StrPath, \
     CourseJSON, UserJSON, FeedbackJSON, ScoreJSON,\
     ScoreInt
@@ -49,6 +50,8 @@ class IO_RankingSystem:
     PATH_TO_DIR_FEEDBACK = os.path.join(PATH_TO_DIR_DATA, "feedback")
     PATH_TO_DIR_SCORES = os.path.join(PATH_TO_DIR_DATA, "scores")
     PATH_TO_FILE_LECTURES = os.path.join(PATH_TO_DIR_DATA, "lecturers", "lecturers.json")
+    PATH_TO_FILE_METRICS = os.path.join(PATH_TO_DIR_DATA, "metrics", "metrics.json")
+
     # 
     ALL_TAGS : Dict[TagTitle, TagTitle] = None
 
@@ -316,19 +319,19 @@ class IO_RankingSystem:
     # Score
     @staticmethod
     def _score_file_name(score: Score):
-        file_name = f"{score.course_short_name}_{score.author_id}_{score.metric}_{score.lecturer_id}.json"
+        file_name = f"{score.course_short_name}_{score.author_id}_{score.metric_id}_{score.lecturer_id}.json"
         return file_name
     
     @staticmethod
-    def _key_from_score(score: Score) -> Tuple[CourseShortName, ChatBotId, MetricStr, LecturerId]:
-        return (score.course_short_name, score.author_id, score.metric, score.lecturer_id)
+    def _key_from_score(score: Score) -> Tuple[CourseShortName, ChatBotId, MetricId, LecturerId]:
+        return (score.course_short_name, score.author_id, score.metric_id, score.lecturer_id)
     
     @staticmethod
-    def _key_from_score_json(score: Score) -> Tuple[CourseShortName, ChatBotId, MetricStr, LecturerId]:
-        return (score["course_short_name"], score["author_id"], score["metric"], score["lecturer_id"])
+    def _key_from_score_json(score: Score) -> Tuple[CourseShortName, ChatBotId, MetricId, LecturerId]:
+        return (score["course_short_name"], score["author_id"], score["metric_id"], score["lecturer_id"])
 
     @staticmethod
-    def save_score(metric: MetricStr,
+    def save_score(metric_id: MetricId,
                     course_short_name: CourseShortName,
                     author_id: ChatBotId,
                     score: ScoreInt, 
@@ -336,7 +339,7 @@ class IO_RankingSystem:
                     date : str = None):
         score = Score(
             id=None,
-            metric=metric,
+            metric_id=metric_id,
             course_short_name=course_short_name,
             author_id=author_id,
             score=score,
@@ -349,9 +352,9 @@ class IO_RankingSystem:
         IO_RankingSystem._save(Score._score_to_json(score), final_path)
 
     @staticmethod
-    def get_all_score() -> Dict[Tuple[CourseShortName, ChatBotId, MetricStr, LecturerId], ScoreJSON]:
+    def get_all_score() -> Dict[Tuple[CourseShortName, ChatBotId, MetricId, LecturerId], ScoreJSON]:
         score_file_name_list = os.listdir(IO_RankingSystem.PATH_TO_DIR_SCORES)
-        score_json_dict : Dict[Tuple[CourseShortName, ChatBotId, MetricStr, LecturerId], ScoreJSON] = dict()
+        score_json_dict : Dict[Tuple[CourseShortName, ChatBotId, MetricId, LecturerId], ScoreJSON] = dict()
         for file_name in score_file_name_list:
             # AbVar_1.json
             course_short_name, chat_id, metric, lecturer_id = file_name.split('.')[0].split('_')
@@ -376,6 +379,13 @@ class IO_RankingSystem:
         return lecturers_json
         
     # __Lecturers
+
+    # METRICS
+    @staticmethod
+    def get_all_metrics() -> Dict[MetricId, MetricStr]:
+        metrics_json : Dict[MetricId, MetricStr] = IO_RankingSystem._load(IO_RankingSystem.PATH_TO_FILE_METRICS)
+        return metrics_json
+    # __METRICS
 
 if __name__ == "__main__":
     io_rk = IO_RankingSystem()  
