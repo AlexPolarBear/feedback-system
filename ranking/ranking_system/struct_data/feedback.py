@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from .aliases import CourseShortName, ChatBotId
+from .aliases import CourseShortName, ChatBotId, LecturerStr
 
 @dataclass
 class Feedback:
@@ -7,6 +7,7 @@ class Feedback:
     # course_id: int
     short_name: CourseShortName # FK
     author_id: ChatBotId # FK
+    lecturer : LecturerStr # FK
     date: str
     text: str
 
@@ -15,4 +16,4 @@ class Feedback:
     def _feedback_to_json(feedback : "Feedback"):
         return feedback.__dict__
     
-    
+

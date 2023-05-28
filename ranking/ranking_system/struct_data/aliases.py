@@ -1,7 +1,10 @@
 CourseShortName = str
 TagTitle = str
+LecturerStr = str
+
 ChatBotId = int
 FeedbackId = int
+LecturerId = int
 
 TagId = int
 
