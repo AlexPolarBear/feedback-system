@@ -62,7 +62,7 @@ class Ranking_Interface:
     @staticmethod
     def get_tag_titles_by_user_request(request):
         tags = Ranking_Interface.__get_rk_intance().get_top_suitable_tags_by_text(request)
-        return list(map(lambda tag: tag['title'], tags))
+        return tags
 
     @staticmethod
     def get_all_unselected_tags(chat_id):
