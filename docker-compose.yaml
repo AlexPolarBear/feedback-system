@@ -24,6 +24,12 @@ services:
         #     "feedback"
         ports:
             - "5000:5000"
+    bot:
+        container_name: bot
+        depends_on:
+            - app
+        restart: on-failure:1000
+        build: bot
 # networks:
 #     "feedback"
 

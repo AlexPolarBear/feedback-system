@@ -1,1 +1,3 @@
 aiogram
+requests
+Levenshtein
