@@ -5,7 +5,7 @@ import time
 from json_interface import JSON_Interface
 
 class DB_Client:
-    url_preffix = "http://example.com"
+    url_preffix = "http://127.0.0.1:5000"
     feedback_need_to_update = True
     score_need_to_update = True
 
@@ -49,15 +49,15 @@ class DB_Client:
 
     @staticmethod
     def __get(url_suffix):
-        # Temporary plug
-        case = {
-            '/courses': '../data/courses.json',
-            '/metrics': '../data/metrics.json',
-            '/feedback': '../data/feedback.json',
-            '/score': '../data/score.json',
-        }
-        filename = case.get(url_suffix, 'Unknown')
-        return JSON_Interface.load_data_from_json(filename)
+        # # Temporary plug
+        # case = {
+        #     '/courses': '../data/courses.json',
+        #     '/metrics': '../data/metrics.json',
+        #     '/feedback': '../data/feedback.json',
+        #     '/score': '../data/score.json',
+        # }
+        # filename = case.get(url_suffix, 'Unknown')
+        # return JSON_Interface.load_data_from_json(filename)
 
         url = DB_Client.url_preffix + url_suffix
         response = requests.get(url)

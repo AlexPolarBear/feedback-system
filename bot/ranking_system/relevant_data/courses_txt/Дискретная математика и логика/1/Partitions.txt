@@ -1,0 +1,24 @@
+Partitions
+
+Lecturer: E. Mortenson
+
+Type: Large Course
+
+To be offered in: ???
+
+This is an advanced course in Partitions, which is a branch of number theory initiated by Leonhard Euler.  After Euler the subject has been studied and discussed by many mathematicians such as Gauss, Jacobi, Schur, MacMahon, Hardy, Ramanujan, and Andrews, etc.    We will begin the course by studying the partition function p(n), which is the number of ways of expressing n as a sum of positive integers disregarding order.   There are many different ways to study partitions. We will cover elementary, combinatorial, number theoretic techniques and the theory of q-series (basic hypergeometric functions). In particular, we will look at Ramanujan's partition congruences in detail and describe some recent research.
+
+Syllabus: On q-series and partitions; infinite series generating functions, Ramanujan's partition congruences, restricted partitions and permutations, identities of Rogers-Ramanujan type and more.
+
+Prerequisite: Complex Analysis
+
+References:
+
+1. G. Andrews, The Theory of Partitions, 1976.
+
+2. G. Andrews, K. Ericksson, Integer Partitions, 2004.
+
+3. N. Fine, Basic hypergeometric series, 1988.
+
+4. G. Gasper and M. Rahman, Basic hypergeometric series, 1990.
+
