@@ -9,8 +9,8 @@ services:
             MYSQL_USER: user_name
             MYSQL_DATABASE: feedback
             HOST: 'db'
-        ports:
-            - "3000:3306"
+        # ports:
+        #     - "3000:3306"
         # networks: 
         #     "feedback"
         volumes:
