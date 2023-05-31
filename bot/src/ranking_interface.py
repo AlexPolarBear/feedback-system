@@ -22,8 +22,7 @@ class Ranking_Interface:
 
     @staticmethod
     def add_user_if_not_exists(chat_id):
-        user_json = Ranking_Interface.__get_io_rk_intance().load_user_json(chat_id=4)
-        print(user_json)
+        user_json = Ranking_Interface.__get_io_rk_intance().load_user_json(chat_id=chat_id)
         if user_json == None:
             new_user_json = {
                 "chat_id": chat_id,
@@ -37,7 +36,7 @@ class Ranking_Interface:
     @staticmethod
     def add_tag_to_user(chat_id, tag_title):
         Ranking_Interface.__get_io_rk_intance().add_tag_to_user(chat_id, tag_title)
-
+        
 
     @staticmethod
     def delete_tag_from_user(chat_id, tag_title):

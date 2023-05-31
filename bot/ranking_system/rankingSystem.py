@@ -120,7 +120,10 @@ class RankingSystem:
                 print(f"!!Такого юзера={chat_id} нету в базе данных после обновления!!!!!!")
                 return None
         
+        self.update_users()
         user = self.users[chat_id]
+
+        print(user)
 
         top_courses = self._get_top_relevant_UserCourse(user=user, max_count=max_count)
         top_courses_json = [Course._course_to_json(course) for course in top_courses]
