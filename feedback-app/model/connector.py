@@ -13,11 +13,16 @@ def create_connection():
     connection = None
     try:
         connection = mysql.connector.connect(
-            host='db',
+            host='localhost',
             port=3306,
-            user='user_name',
-            passwd='password',
+            user='root',
+            passwd='processionLF0112358.',
             database='feedback',
+            # host='db',
+            # port=3306,
+            # user='user_name',
+            # passwd='password',
+            # database='feedback',
         )
         connection.autocommit = True
         print("Connection to MySQl DB successful")

@@ -1,9 +1,13 @@
-# import logging
+import logging
 from mysql.connector import Error
-from typing import List
+from typing import List, Optional
 
 from model.scores import Scores, Scores_get
 from model.connector import create_connection
+
+
+logger = logging.getLogger('root')
+logger.handlers
 
 
 class ScoreRepository:
@@ -15,7 +19,7 @@ class ScoreRepository:
         self.connection = create_connection()
 
 
-    def add_or_update_score(self, score: Scores):
+    def add_or_update_score(self, score: Scores) -> Optional[str]:
         """
         Create and add a new score in table.
         If score already exist, just updates it by id.
@@ -39,13 +43,15 @@ class ScoreRepository:
                                    score.author_id,
                                    score.date,
                                    score.score])
-            print("Query executed successfully")
+            cursor.close()
+            logger.info("Score add/update successfully.")
+            return "Score add/update successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def get_all_scores(self):
+    def get_all_scores(self) -> Optional[Scores_get]:
         """
         Returns the list of all scores in table.
         """
@@ -56,20 +62,22 @@ class ScoreRepository:
             id, metric_id, course_id, author_id, date, score
         FROM scores
         """
-        courses: List[Scores_get] = []
 
+        scores: List[Scores_get] = []
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
+            cursor.close()
             for row in result:
-                courses.append(Scores_get(row[0], row[1], row[2], row[3], row[4], row[5]))
-            return courses
+                scores.append(Scores_get(row[0], row[1], row[2], row[3], row[4], row[5]))
+            logger.info("Get all scores successfully.")
+            return scores
         except Error as err:
-            print(f"The error '{err}' occured")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def get_one_score(self, id: int):
+    def get_one_score(self, id: int) -> Optional[Scores_get]:
         """
         Return one score by it id.
         """
@@ -83,14 +91,20 @@ class ScoreRepository:
 
         try:
             cursor.execute(query, (id,))
-            score = cursor.fetchone()
-            return score
+            row = cursor.fetchone()
+            cursor.close()
+            if row is None:
+                logger.info("Empty result.")
+                return None
+            else:
+                logger.info("Score get successfully.")
+                return Scores_get(row[0], row[1], row[2], row[3], row[4], row[5])
         except Error as err:
-            print(f"The error '{err}' occured")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
     
 
-    def delete_score(self, id: int):
+    def delete_score(self, id: int) -> Optional[str]:
         """
         Deletes score by id.
         """
@@ -102,13 +116,14 @@ class ScoreRepository:
 
         try:
             cursor.execute(query, (id,))
-            print("Score was deleted successfully")
+            cursor.close()
+            logger.info("Score was deleted successfully.")
+            return "Score was deleted successfully."
         except Error as err:
-            print(f"The error '{err}' occured")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
-
-    # def update_score(self, id:int, score: Scores):
+    # def update_score(self, id:int, score: Scores) -> Optrinal[str]:
     #     """
     #     Update score by id.
     #     """
@@ -122,7 +137,9 @@ class ScoreRepository:
     #     try:
     #         cursor.execute(query, [score.date,
     #                                score.score, id])
-    #         print("Score update successfully")
+    #         cursor.close()
+    #         logger.info("Score was updated successfully.")
+    #         return "Score was updated successfully."
     #     except Error as err:
-    #         print(f"The error '{err}' occured")
-    #     cursor.close()
+    #         logger.error(f"The error '{err}' occurred.")
+    #         return None

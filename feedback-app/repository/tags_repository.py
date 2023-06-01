@@ -1,9 +1,13 @@
-# import logging
+import logging
 from mysql.connector import Error
-from typing import List
+from typing import List, Optional
 
 from model.tags import Tags, Tags_get
 from model.connector import create_connection
+
+
+logger = logging.getLogger('root')
+logger.handlers
 
 
 class TagsRepository:
@@ -15,7 +19,7 @@ class TagsRepository:
         self.connection = create_connection()
 
     
-    def get_all_tags(self):
+    def get_all_tags(self) -> Optional[Tags_get]:
         """
         Returns all tags in table.
         """
@@ -30,15 +34,17 @@ class TagsRepository:
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
+            cursor.close()
             for row in result:
                 tags.append(Tags_get(row[0], row[1], row[2]))
+            logger.info("Get all tags successfully.")
             return tags
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def get_one_tag(self, id: int):
+    def get_one_tag(self, id: int) -> Optional[Tags_get]:
         """
         Return one tag by id.
         """
@@ -49,16 +55,22 @@ class TagsRepository:
         FROM tags WHERE id = %s
         """
 
-        cursor.execute(query, [id])
-        row = cursor.fetchone()
-        cursor.close()
-        if row is None:
+        try:
+            cursor.execute(query, [id])
+            row = cursor.fetchone()
+            cursor.close()
+            if row is None:
+                logger.info("Empty result.")
+                return None
+            else:
+                logger.info("Tag get successfully.")
+                return Tags_get(row[0], row[1], row[2])
+        except Error as err:
+            logger.error(f"The error '{err}' occurred.")
             return None
-        else:
-            return Tags_get(row[0], row[1], row[2])
-        
 
-    def add_tag(self, tag: Tags):
+
+    def add_tag(self, tag: Tags) -> Optional[str]:
         """
         Add new tag in table.
         """
@@ -71,13 +83,15 @@ class TagsRepository:
 
         try:
             cursor.execute(query, (tag.title, tag.type))
-            print("Query executed successfully")
+            cursor.close()
+            logger.info("Tag added successfully.")
+            return "Tag added successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
       
-    def delete_tag(self, id: int):
+    def delete_tag(self, id: int) -> Optional[str]:
         """
         Delete tag from table.
         """
@@ -89,13 +103,15 @@ class TagsRepository:
 
         try:
             cursor.execute(query, [id])
-            print("Tag deleted successfully")
+            cursor.close()
+            logger.info("Tag deleted successfully.")
+            return "Tag deleted successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def update_tag_title(self, id: int, tag: Tags):
+    def update_tag_title(self, id: int, tag: Tags) -> Optional[str]:
         """
         Updating the tag title by id.
         """
@@ -108,13 +124,15 @@ class TagsRepository:
 
         try:
             cursor.execute(query, (tag.title, id))
-            print("Query update successfully")
+            cursor.close()
+            logger.info("Tag title updated successfully.")
+            return "Tag title updated successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def update_tag_type(self, id: int, tag: Tags):
+    def update_tag_type(self, id: int, tag: Tags) -> Optional[str]:
         """
         Updating the tag type by id.
         """
@@ -127,7 +145,9 @@ class TagsRepository:
 
         try:
             cursor.execute(query, (tag.type, id))
-            print("Query update successfully")
+            cursor.close()
+            logger.info("Tag name updated successfully.")
+            return "Tag name updated successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None

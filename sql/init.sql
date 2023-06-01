@@ -1,3 +1,7 @@
+CREATE DATABASE feedback;
+
+USE DATABASE feedback;
+
 CREATE TABLE lecturers (
 	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name TEXT
@@ -80,6 +84,4 @@ CREATE TABLE scores (
 --     CONSTRAINT member_course_fk
 --         FOREIGN KEY course_fk (course_id) REFERENCES courses (id)
 --         ON DELETE CASCADE ON UPDATE CASCADE
--- )
-
--- DROP TABLE course_lecturer;
+-- );

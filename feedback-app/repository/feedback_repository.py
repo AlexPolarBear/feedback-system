@@ -1,9 +1,13 @@
-# import logging
+import logging
 from mysql.connector import Error
-from typing import List
+from typing import List, Optional
 
 from model.feedback import Feedback, Feedback_get
 from model.connector import create_connection
+
+
+logger = logging.getLogger('root')
+logger.handlers
 
 
 class FeedbackRepository:
@@ -15,7 +19,7 @@ class FeedbackRepository:
         self.connection = create_connection()
 
 
-    def add_feedback(self, feedback: Feedback):
+    def add_feedback(self, feedback: Feedback) -> Optional[str]:
         """
         This method creates and adds new feedback in table.
         """
@@ -31,13 +35,15 @@ class FeedbackRepository:
                                    feedback.author_id,
                                    feedback.date,
                                    feedback.text])
-            print("Query executed successfully")
+            cursor.close()
+            logger.info("Feedback add successfully.")
+            return "Feedback add successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None
 
 
-    def get_all_feedbacks(self):
+    def get_all_feedbacks(self) -> Optional[Feedback_get]:
         """
         This method returns the list of all feedbacks in table.
         """
@@ -55,13 +61,15 @@ class FeedbackRepository:
             result = cursor.fetchall()
             for row in result:
                 courses.append(Feedback_get(row[0], row[1], row[2], row[3], row[4]))
+            cursor.close()
+            logger.info("All feedback get successfully.")
             return courses
         except Error as err:
-            print(f"The error '{err}' occured")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None
 
 
-    def get_one_feedback(self, id: int):
+    def get_one_feedback(self, id: int) -> Optional[Feedback_get]:
         """
         This method return one feedback by it id.
         """
@@ -75,14 +83,20 @@ class FeedbackRepository:
 
         try:
             cursor.execute(query, (id,))
-            feedback = cursor.fetchone()
-            return feedback
+            row = cursor.fetchone()
+            cursor.close()
+            if row is None:
+                logger.info("Empty result.")
+                return None
+            else:
+                logger.info("Feedback get successfully.")
+                return Feedback_get(row[0], row[1], row[2], row[3], row[4])
         except Error as err:
-            print(f"The error '{err}' occured")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None
     
 
-    def delete_feedback(self, id: int):
+    def delete_feedback(self, id: int) -> Optional[str]:
         """
         This method deletes feedback by it's id.
         """
@@ -94,13 +108,15 @@ class FeedbackRepository:
 
         try:
             cursor.execute(query, (id,))
-            print("Query excecuted successfully")
+            cursor.close()
+            logger.info("Feedback deleted successfully.")
+            return "Feedback deleted successfully."
         except Error as err:
-            print(f"The error '{err}' occured")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None
 
 
-    def update_feedback(self, id:int, feedback: Feedback):
+    def update_feedback(self, id:int, feedback: Feedback) -> Optional[str]:
         """
         This method updates feedback by id.
         """
@@ -115,7 +131,9 @@ class FeedbackRepository:
         try:
             cursor.execute(query, [feedback.date,
                                    feedback.text, id])
-            print("Query excecuted successfully")
+            cursor.close()
+            logger.info("Feedback updated successfully.")
+            return "Feedback updated successfully."
         except Error as err:
-            print(f"The error '{err}' occured")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None

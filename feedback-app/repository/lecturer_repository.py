@@ -1,9 +1,13 @@
-# import logging
+import logging
 from mysql.connector import Error
-from typing import List
+from typing import List, Optional
 
 from model.lecturer import Lecturer, Lecturer_get
 from model.connector import create_connection
+
+
+logger = logging.getLogger('root')
+logger.handlers
 
 
 class LecturerRepository:
@@ -15,7 +19,7 @@ class LecturerRepository:
         self.connection = create_connection()
 
 
-    def add_lecturer(self, lecturer: Lecturer):
+    def add_lecturer(self, lecturer: Lecturer) -> Optional[str]:
         """
         Add new lecturer in table.
         """
@@ -29,10 +33,12 @@ class LecturerRepository:
 
         try:
             cursor.execute(query, (lecturer.name,))
-            print("Query executed successfully")
+            cursor.close()
+            logger.info("Lecturer add successfully.")
+            return "Lecturer add successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
     def get_id_by_lecturer_name(self, name):
@@ -48,17 +54,17 @@ class LecturerRepository:
         try:
             cursor.execute(query, (name,))
             result = cursor.fetchone()
-            if result:
-                return result
-            else:
+            cursor.close()
+            if result is None:
                 result = [(91,)]
-                return result
+            logger.info("Get lecturer id successfully.")
+            return result
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
       
-    def delete_lecturer(self, id: int):
+    def delete_lecturer(self, id: int) -> Optional[str]:
         """
         Delete lecturer from table.
         """
@@ -71,13 +77,15 @@ class LecturerRepository:
         try:
             cursor.execute(query,[id])
             self.connection.commit()
-            print("Lecturer deleted successfully")
+            cursor.close()
+            logger.info("Lecturer deleted successfully.")
+            return "Lecturer deleted successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def get_all_lecturer(self):
+    def get_all_lecturer(self) -> Optional[Lecturer_get]:
         """
         Returns the list of all lecturers in table.
         """
@@ -92,15 +100,17 @@ class LecturerRepository:
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
+            cursor.close()
             for row in result:
                 lecturers.append(Lecturer_get(row[0], row[1]))
+            logger.info("All lecturers get successfully.")
             return lecturers
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def get_one_lecturer(self, id: int):
+    def get_one_lecturer(self, id: int) -> Optional[Lecturer_get]:
         """
         Return one lecturer by id.
         """
@@ -110,17 +120,23 @@ class LecturerRepository:
         SELECT id, name
         FROM lecturers WHERE id = %s
         """
-        cursor.execute(query, [id])
 
-        row = cursor.fetchone()
-        cursor.close()
-        if row is None:
-            return None
-        else:
-            return Lecturer_get(row[0], row[1])
-    
+        try:
+            cursor.execute(query, [id])
+            row = cursor.fetchone()
+            cursor.close()
+            if row is None:
+                logger.info("Empty result.")
+                return None
+            else:
+                logger.info("Lecturer get successfully.")
+                return Lecturer_get(row[0], row[1])
+        except Error as err:
+            logger.error(f"The error '{err}' occurred.")
+            return None    
 
-    def update_lecturer(self, id: int, lecturer: Lecturer):
+
+    def update_lecturer(self, id: int, lecturer: Lecturer) -> Optional[str]:
         """
         Updating the lecturer name.
         """
@@ -133,7 +149,9 @@ class LecturerRepository:
 
         try:
             cursor.execute(query, (lecturer.name, id))
-            print("Query update successfully")
+            cursor.close()
+            logger.info("Lecturer updated successfully.")
+            return "Lecturer updated successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None

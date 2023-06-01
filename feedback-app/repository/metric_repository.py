@@ -1,9 +1,13 @@
-# import logging
+import logging
 from mysql.connector import Error
-from typing import List
+from typing import List, Optional
 
 from model.metric import Metric, Metric_get
 from model.connector import create_connection
+
+
+logger = logging.getLogger('root')
+logger.handlers
 
 
 class MetricRepository:
@@ -15,7 +19,7 @@ class MetricRepository:
         self.connection = create_connection()
 
     
-    def get_all_metric(self):
+    def get_all_metric(self) -> Optional[Metric_get]:
         """
         Returns the list of all metrics in table.
         """
@@ -30,15 +34,17 @@ class MetricRepository:
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
+            cursor.close()
             for row in result:
                 metrics.append(Metric_get(row[0], row[1]))
+            logger.info("All metrics get successfully.")
             return metrics
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def get_one_metric(self, id: int):
+    def get_one_metric(self, id: int) -> Optional[Metric_get]:
         """
         Return one metric by id.
         """
@@ -49,16 +55,22 @@ class MetricRepository:
         FROM metrics WHERE id = %s
         """
 
-        cursor.execute(query, [id])
-        row = cursor.fetchone()
-        cursor.close()
-        if row is None:
+        try:
+            cursor.execute(query, [id])
+            row = cursor.fetchone()
+            cursor.close()
+            if row is None:
+                logger.info("Empty result.")
+                return None
+            else:
+                logger.info("Metric get successfully.")
+                return Metric_get(row[0], row[1])
+        except Error as err:
+            logger.error(f"The error '{err}' occurred.")
             return None
-        else:
-            return Metric_get(row[0], row[1])
         
 
-    def add_metric(self, metric: Metric):
+    def add_metric(self, metric: Metric) -> Optional[str]:
         """
         Add new metric in table.
         """
@@ -71,13 +83,15 @@ class MetricRepository:
 
         try:
             cursor.execute(query, (metric.name,))
-            print("Query executed successfully")
+            cursor.close()
+            logger.info("Metric add successfully.")
+            return "Metric add successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
       
-    def delete_metric(self, id: int):
+    def delete_metric(self, id: int) -> Optional[str]:
         """
         Delete metric from table.
         """
@@ -89,13 +103,15 @@ class MetricRepository:
 
         try:
             cursor.execute(query,[id])
-            print("Lecturer deleted successfully")
+            cursor.close()
+            logger.info("Metric deleted successfully.")
+            return "Metric deleted successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None
 
 
-    def update_metric(self, id: int, metric: Metric):
+    def update_metric(self, id: int, metric: Metric) -> Optional[str]:
         """
         Updating the metric name.
         """
@@ -108,7 +124,9 @@ class MetricRepository:
 
         try:
             cursor.execute(query, (metric.name, id))
-            print("Query update successfully")
+            cursor.close()
+            logger.info("Metric updated successfully.")
+            return "Metric updated successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occurred.")
+            return None

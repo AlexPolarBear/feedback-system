@@ -1,9 +1,13 @@
-# import logging
+import logging
 from typing import List, Optional
 from mysql.connector import Error
 
 from model.course import Course, Course_get
 from model.connector import create_connection
+
+
+logger = logging.getLogger('root')
+logger.handlers
 
 
 class CourseRepository:
@@ -15,7 +19,7 @@ class CourseRepository:
         self.connection = create_connection()
 
 
-    def get_all(self) -> List[Course_get]:
+    def get_all(self) -> Optional[Course_get]:
         """
         This method returns the list of all courses from database.
         """
@@ -28,18 +32,20 @@ class CourseRepository:
             size, description, direction, lecturer_id, year
         FROM courses
         """
+        
         courses: List[Course_get] = []
-
         try: 
             cursor.execute(query)
             result = cursor.fetchall()
             for row in result:
                 courses.append(Course_get(row[0], row[1], row[2], row[3], row[4], 
-                                      row[5], row[6], row[7], row[8]))
+                                          row[5], row[6], row[7], row[8]))
+            cursor.close()
+            logger.info("All courses get successfully.")
             return courses
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None
 
 
     def get_one(self, id: int) -> Optional[Course_get]:
@@ -54,18 +60,24 @@ class CourseRepository:
             size, description, direction, lecturer_id, year
         FROM courses WHERE id = %s
         """
-        cursor.execute(query, [id])
 
-        row = cursor.fetchone()
-        cursor.close()
-        if row is None:
+        try:
+            cursor.execute(query, [id])
+            row = cursor.fetchone()
+            cursor.close()
+            if row is None:
+                logger.info("Empty result.")
+                return None
+            else:
+                logger.info("Course get successfully.")
+                return Course_get(row[0], row[1], row[2], row[3], row[4], 
+                            row[5], row[6], row[7], row[8])
+        except Error as err:
+            logger.error(f"The error '{err}' occured.")
             return None
-        else:
-            return Course_get(row[0], row[1], row[2], row[3], row[4], 
-                          row[5], row[6], row[7], row[8])
         
 
-    def add_courses(self, course: Course):
+    def add_courses(self, course: Course) -> Optional[str]:
         """
         Method just adds new course in the end of table.
         """
@@ -88,13 +100,15 @@ class CourseRepository:
                                   course.direction,
                                   course.lecturer_id,
                                   course.year))
-            print("Query executed successfully")
+            cursor.close()
+            logger.info("Course add successfully.")
+            return "Course add successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None
 
 
-    def delete_course(self, id: int):
+    def delete_course(self, id: int) -> Optional[str]:
         """
         This method delete one course by its id.
         """
@@ -106,13 +120,15 @@ class CourseRepository:
 
         try:
             cursor.execute(query, (id,))
-            print("Course deleted successfully")
+            logger.info("Course deleted successfully.")
+            cursor.close()
+            return "Course deleted successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None
 
 
-    def update_course(self, id: int, course: Course):
+    def update_course(self, id: int, course: Course) -> Optional[str]:
         """
         This method is updating the course information.
         """
@@ -134,7 +150,9 @@ class CourseRepository:
                                   course.direction,
                                   course.lecturer_id,
                                   course.year, id))
-            print("Query update successfully")
+            logger.info("Course update successfully.")
+            cursor.close()
+            return "Course update successfully."
         except Error as err:
-            print(f"The error '{err}' occurred")
-        cursor.close()
+            logger.error(f"The error '{err}' occured.")
+            return None
