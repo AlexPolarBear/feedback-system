@@ -14,7 +14,7 @@ repository = ScoreRepository()
 def get_all_scores() -> Response:
     scores = repository.get_all_scores()
     if scores is None:
-        msg = json.dump({"message": "невозможно получить список счетчиков"}, ensure_ascii=False)
+        msg = json.dumps({"message": "невозможно получить список счетчиков"}, ensure_ascii=False)
         return Response(msg, status=400, mimetype='application/json')
     json_list = json.dumps(scores, default=lambda x: x.__dict__, ensure_ascii=False)
     return Response(json_list, status=200, mimetype='application/json')
@@ -24,7 +24,7 @@ def get_all_scores() -> Response:
 def get_one_score(id: int) -> Response:
     score = repository.get_one_score(id)
     if score is None:
-        msg = json.dump({"message": "счетчик с данным id отсутсвует"}, ensure_ascii=False)
+        msg = json.dumps({"message": "счетчик с данным id отсутсвует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
     json_list = json.dumps(score, default=lambda x: x.__dict__, ensure_ascii=False)
     return Response(json_list, status=200, mimetype='application/json')
@@ -39,7 +39,7 @@ def add_or_upd_score() -> Response:
     score = content.get("score", None)
     def response (field: int):
         if field is None or type(field) is not int:
-            msg = json.dump({"message": "{field} должен быть числом"}, ensure_ascii=False)
+            msg = json.dumps({"message": "{field} должен быть числом"}, ensure_ascii=False)
             return Response(msg, status=422, mimetype='application/json')
     response(metric_id)
     response(course_id)
@@ -54,27 +54,27 @@ def add_or_upd_score() -> Response:
     entity.score = score
     score = repository.add_or_update_score(entity)
     if score is None:
-        msg = json.dump({"message": "счетчик с данным id отсутствует"}, ensure_ascii=False)
+        msg = json.dumps({"message": "не удалось обновить/добавить счетчик"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
     msg = json.dumps({"message": "счетчик успешно добавлен/изменен"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    return Response(msg, status=201, mimetype='application/json')
 
 
 @bp.route("/scores/delete/<id>", methods=['DELETE'])
 def delete_score(id: int) -> Response:
     score = repository.delete_score(id)
     if score is None:
-        msg = json.dump({"message": "счетчик с данным id отсутствует"}, ensure_ascii=False)
+        msg = json.dumps({"message": "счетчик с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
     msg = json.dumps({"message": "счетчик успешно удален"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    return Response(msg, status=202, mimetype='application/json')
 
 # @bp.route("/scores/update/<id>", methods=['POST'])
 # def update_score(id: int) -> Response:
 #     content = request.get_json()
 #     score = content.get("score", None)
 #     if score is None or type(score) is not int:
-#         msg = json.dump({"message": "score должен быть числом"}, ensure_ascii=False)
+#         msg = json.dumps({"message": "score должен быть числом"}, ensure_ascii=False)
 #         return Response(msg, status=422, mimetype='application/json')
 
 #     entity = Scores()
@@ -82,7 +82,7 @@ def delete_score(id: int) -> Response:
 #     entity.score = score
 #     score = repository.update_score(id, entity)
 #     if score is None:
-#         msg = json.dump({"message": "счетчик с данным id отсутствует"}, ensure_ascii=False)
+#         msg = json.dumps({"message": "счетчик с данным id отсутствует"}, ensure_ascii=False)
 #         return Response(msg, status=422, mimetype='application/json')
 #     msg = json.dumps({"message": "счетчик успешно изменен"}, ensure_ascii=False)
-#     return Response(msg, status=200, mimetype='application/json')
+#     return Response(msg, status=201, mimetype='application/json')

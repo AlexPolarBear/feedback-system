@@ -23,36 +23,36 @@ def add_lecturer() -> Response:
 
     lecturer = repository.add_lecturer(entity)
     if lecturer is None:
-        msg = json.dump({"message": "не удалось добавить преподавателя"}, ensure_ascii=False)
+        msg = json.dumps({"message": "не удалось добавить преподавателя"}, ensure_ascii=False)
         return Response(msg, status=400, mimetype='application/json')
-    msg = json.dump({"message": "преподаватель успешно сохранен"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    msg = json.dumps({"message": "преподаватель успешно сохранен"}, ensure_ascii=False)
+    return Response(msg, status=201, mimetype='application/json')
 
 
 @bp.route("/lecturers/name/<name>", methods=['GET'])
 def get_id_by_name(name: str) -> Response:
     lecturer = repository.get_id_by_lecturer_name(name)
     if lecturer is None:
-        msg = json.dump({"message": "преподаватель с данным именем отсутствует"}, ensure_ascii=False)
+        msg = json.dumps({"message": "преподаватель с данным именем отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
-    return lecturer
+    return Response(lecturer, status=200, mimetype='application/json')
 
 
 @bp.route("/lecturers/delete/<id>", methods=['DELETE'])
 def delete_lecturer(id: int) -> Response:
     lecturer = repository.delete_lecturer(id)
     if lecturer is None:
-        msg = json.dump({"message": "преподаватель с данным id отсутствует"}, ensure_ascii=False)
+        msg = json.dumps({"message": "преподаватель с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
-    msg = json.dump({"message": "преподаватель успешно удален"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    msg = json.dumps({"message": "преподаватель успешно удален"}, ensure_ascii=False)
+    return Response(msg, status=202, mimetype='application/json')
 
 
 @bp.route("/lecturers", methods=['GET'])
 def get_all_lecturer() -> Response:
     lecturers = repository.get_all_lecturer()
     if lecturers is None:
-        msg = json.dump({"message": "невозможно получить список преподавателей"}, ensure_ascii=False)
+        msg = json.dumps({"message": "невозможно получить список преподавателей"}, ensure_ascii=False)
         return Response(msg, status=400, mimetype='application/json')
     json_list = json.dumps(lecturers, default=lambda x: x.__dict__, ensure_ascii=False)
     return Response(json_list, status=200, mimetype='application/json')
@@ -62,7 +62,7 @@ def get_all_lecturer() -> Response:
 def get_one_lecturer(id: int) -> Response:
     lecturer = repository.get_one_lecturer(id)
     if lecturer is None:
-        msg = json.dump({"message": "преподаватель с данным id отсутствует"}, ensure_ascii=False)
+        msg = json.dumps({"message": "преподаватель с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
     json_list = json.dumps(lecturer, default=lambda x: x.__dict__, ensure_ascii=False)
     return Response(json_list, status=200, mimetype='application/json')
@@ -80,7 +80,7 @@ def update_lecturer(id: int) -> Response:
     entity.name = name
     lecturer = repository.update_lecturer(id, entity)
     if lecturer is None:
-        msg = json.dump({"message": "преподаватель с данным id отсутствует"}, ensure_ascii=False)
+        msg = json.dumps({"message": "преподаватель с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
-    msg = json.dump({"message": "преподаватель успешно изменен"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    msg = json.dumps({"message": "преподаватель успешно изменен"}, ensure_ascii=False)
+    return Response(msg, status=201, mimetype='application/json')

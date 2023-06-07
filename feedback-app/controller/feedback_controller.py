@@ -38,7 +38,7 @@ def add_feedback() -> Response:
         msg = json.dumps({"message": "не удалось добавить отзыв"}, ensure_ascii=False)
         return Response(msg, status=400, mimetype='application/json')
     msg = json.dumps({"message": "отзыв успешно добавлен"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    return Response(msg, status=201, mimetype='application/json')
 
 
 @bp.route("/feedback", methods=['GET'])
@@ -47,7 +47,7 @@ def get_all_feedbacks() -> Response:
     if feedbacks is None:
         msg = json.dumps({"message": "невозможно получить список отзывов"}, ensure_ascii=False)
         return Response(msg, status=400, mimetype='application/json')
-    json_list = json.dump(feedbacks, default=lambda x: x.__dict__, ensure_ascii=False)
+    json_list = json.dumps(feedbacks, default=lambda x: x.__dict__, ensure_ascii=False)
     return Response(json_list, status=200, mimetype='application/json')
 
 
@@ -57,7 +57,7 @@ def get_one_feedback(id: int) -> Response:
     if feedback is None:
         msg = json.dumps({"message": "отзыв с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
-    json_list = json.dump(feedback, default=lambda x: x.__dict__, ensure_ascii=False)
+    json_list = json.dumps(feedback, default=lambda x: x.__dict__, ensure_ascii=False)
     return Response(json_list, status=200, mimetype='application/json')
 
 
@@ -68,7 +68,7 @@ def delete_feedback(id: int) -> Response:
         msg = json.dumps({"message": "отзыв с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
     msg = json.dumps({"message": "отзыв успешно удален"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    return Response(msg, status=202, mimetype='application/json')
 
 
 @bp.route("/feedback/update/<id>", methods=['POST'])
@@ -87,4 +87,4 @@ def update_feedback(id: int) -> Response:
         msg = json.dumps({"message": "отзыв с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
     msg = json.dumps({"message": "отзыв успешно изменен"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    return Response(msg, status=201, mimetype='application/json')

@@ -1,0 +1,743 @@
+openapi: 3.0.3
+info:
+  title: Feedback system
+  description: Feedback and evaluation system for the studying courses.  # [CommonMark](http://commonmark.org/help/)
+  version: 1.0
+  contact:
+    name: GitHub
+    url: https://github.com/AlexPolarBear/feedback-system
+servers:
+  - url: http://127.0.0.1:5000
+    description: The main server
+paths:
+# courses path
+  /courses:
+    get:
+      summary: Returns a list of all courses.
+      # description: Optional extended description in CommonMark or HTML.
+      responses:
+        '200':    # status code
+          description: A JSON array of courses
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  field_of_knowledge:
+                    type: string
+                  short_name:
+                    type: string
+                  full_name:
+                    type: string
+                  size:
+                    type: string
+                  description:
+                    type: string
+                  direction:
+                    type: string
+                  lecturer_id:
+                    type: integer
+                  year:
+                    type: string
+        '400':
+          description: Unable to get a list of courses
+        default:
+          description: Unexpected error
+    post:
+      summary: Creates a course.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                field_of_knowledge:
+                  type: string
+                short_name:
+                  type: string
+                full_name:
+                  type: string
+                size:
+                  type: string
+                description:
+                  type: string
+                direction:
+                  type: string
+                lecturer_id:
+                  type: integer
+                year:
+                  type: string
+      responses:
+        '201':
+          description: Course successfully saved
+        '400':
+          description: Failed to add a course
+        default:
+          description: Unexpected error
+  /courses/{id}:
+    get:
+      summary: Returns a course by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            # format: int64
+            minimum: 1
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  field_of_knowledge:
+                    type: string
+                  short_name:
+                    type: string
+                  full_name:
+                    type: string
+                  size:
+                    type: string
+                  description:
+                    type: string
+                  direction:
+                    type: string
+                  lecturer_id:
+                    type: integer
+                  year:
+                    type: string
+        '422':
+          description: There is no course with this id
+        default:
+          description: Unexpected error
+  /courses/delete/{id}:
+    delete:
+      summary: Delete a course by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '202':
+          description: Course successfully deleted
+        '422':
+          description: There is no course with this id
+        default:
+          description: Unexpected error
+  /courses/update/{id}:
+    post:
+      summary: Updates a course.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                field_of_knowledge:
+                  type: string
+                short_name:
+                  type: string
+                full_name:
+                  type: string
+                size:
+                  type: string
+                description:
+                  type: string
+                direction:
+                  type: string
+                lecturer_id:
+                  type: integer
+                year:
+                  type: string
+      responses:
+        '201':
+          description: Course successfully updated
+        '422':
+          description: There is no course with this id
+        default:
+          description: Unexpected error
+# feedbacks path
+  /feedback:
+    get:
+      summary: Returns a list of all feedbacks.
+      responses:
+        '200':
+          description: A JSON array of feedbacks
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: string
+                  course_id:
+                    type: integer
+                  author_id:
+                    type: integer
+                  date:
+                    type: string
+                  text:
+                    type: string
+        '400':
+          description: Unable to get a list of feedbacks
+        default:
+          description: Unexpected error
+    post:
+      summary: Creates a feedbacks.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                course_id:
+                  type: integer
+                author_id:
+                  type: integer
+                text:
+                  type: string
+      responses:
+        '201':
+          description: Feedback successfully saved
+        '400':
+          description: Failed to add a feedback
+        default:
+          description: Unexpected error
+  /feedback/{id}:
+    get:
+      summary: Returns a feedback by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            # format: int64
+            minimum: 1
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: string
+                  course_id:
+                    type: integer
+                  author_id:
+                    type: integer
+                  date:
+                    type: string
+                  text:
+                    type: string
+        '422':
+          description: There is no feedback with this id
+        default:
+          description: Unexpected error
+  /feedback/delete/{id}:
+    delete:
+      summary: Delete a feedback by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '202':
+          description: Feedback successfully deleted
+        '422':
+          description: There is no feedback with this id
+        default:
+          description: Unexpected error
+  /feedback/update/{id}:
+    post:
+      summary: Updates a feedback.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                course_id:
+                  type: integer
+                author_id:
+                  type: integer
+                text:
+                  type: string
+      responses:
+        '201':
+          description: Feedback successfully updated
+        '422':
+          description: There is no feedback with this id
+        default:
+          description: Unexpected error
+# lecturers path
+  /lecturers:
+    get:
+      summary: Returns a list of all lecturers.
+      responses:
+        '200':
+          description: A JSON array of lecturers
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+        '400':
+          description: Unable to get a list of lecturers
+        default:
+          description: Unexpected error
+    post:
+      summary: Creates a lecturer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Lecturer successfully saved
+        '400':
+          description: Failed to add a lecturer
+        default:
+          description: Unexpected error
+  /lecturers/{id}:
+    get:
+      summary: Returns a lecturer by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+        '422':
+          description: There is no lecturer with this id
+        default:
+          description: Unexpected error
+  /lecturers/name/{name}:
+    get:
+      summary: Returns a lecturer's id by name.
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type : string
+            minimum: 1
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+        '422':
+          description: There is no lecturer with this name
+        default:
+          description: Unexpected error
+  /lecturers/delete/{id}:
+    delete:
+      summary: Delete a lecturer by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '202':
+          description: Lecturer successfully deleted
+        '422':
+          description: There is no lecturer with this id
+        default:
+          description: Unexpected error
+  /lecturers/update/{id}:
+    post:
+      summary: Updates a lecturer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Lecturer successfully updated
+        '422':
+          description: There is no lecturer with this id
+        default:
+          description: Unexpected error
+# metrics path
+  /metrics:
+    get:
+      summary: Returns a list of all metrics.
+      responses:
+        '200':
+          description: A JSON array of metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+        '400':
+          description: Unable to get a list of metrics
+        default:
+          description: Unexpected error
+    post:
+      summary: Creates a metric.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Metric successfully saved
+        '400':
+          description: Failed to add a metric
+        default:
+          description: Unexpected error
+  /metrics/{id}:
+    get:
+      summary: Returns a metric by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+        '422':
+          description: There is no metric with this id
+        default:
+          description: Unexpected error
+  /metrics/delete/{id}:
+    delete:
+      summary: Delete a metric by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '202':
+          description: Metric successfully deleted
+        '422':
+          description: There is no metric with this id
+        default:
+          description: Unexpected error
+  /metrics/update/{id}:
+    post:
+      summary: Updates a metric.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Metric successfully updated
+        '422':
+          description: There is no metric with this id
+        default:
+          description: Unexpected error
+# scores path
+  /scores:
+    get:
+      summary: Returns a list of all scores.
+      responses:
+        '200':
+          description: A JSON array of scores
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  metric_id:
+                    type: integer
+                  course_id:
+                    type: integer
+                  author_id:
+                    type: integer
+                  date:
+                    type: string
+                  score:
+                    type: integer
+        '400':
+          description: Unable to get a list of scores
+        default:
+          description: Unexpected error
+    post:
+      summary: Creates or update a score.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metric_id:
+                  type: integer
+                course_id:
+                  type: integer
+                author_id:
+                  type: integer
+                score:
+                  type: integer
+      responses:
+        '201':
+          description: Score successfully saved
+        '400':
+          description: Failed to add/update a score
+        default:
+          description: Unexpected error
+  /scores/{id}:
+    get:
+      summary: Returns a score by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  metric_id:
+                    type: integer
+                  course_id:
+                    type: integer
+                  author_id:
+                    type: integer
+                  date:
+                    type: string
+                  score:
+                    type: integer
+        '422':
+          description: There is no score with this id
+        default:
+          description: Unexpected error
+  /scores/delete/{id}:
+    delete:
+      summary: Delete a score by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '202':
+          description: Score successfully deleted
+        '422':
+          description: There is no score with this id
+        default:
+          description: Unexpected error
+# tags path
+  /tags:
+    get:
+      summary: Returns a list of all tags.
+      responses:
+        '200':
+          description: A JSON array of tags
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  type:
+                    type: string
+        '400':
+          description: Unable to get a list of tags
+        default:
+          description: Unexpected error
+    post:
+      summary: Creates a tag.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                type:
+                  type: string
+      responses:
+        '201':
+          description: Tag successfully saved
+        '400':
+          description: Failed to add a tag
+        default:
+          description: Unexpected error
+  /tags/{id}:
+    get:
+      summary: Returns a tag by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  type:
+                    type: string
+        '422':
+          description: There is no tag with this id
+        default:
+            description: Unexpected error
+  /tags/delete/{id}:
+    delete:
+      summary: Delete a tag by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type : integer
+            minimum: 1
+      responses: 
+        '202':
+          description: Tag successfully deleted
+        '422':
+          description: There is no score with this id
+        default:
+            description: Unexpected error
+  /tags/update/type/{id}:
+    post:
+      summary: Updates a tag's type by id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+      responses:
+        '201':
+          description: Tag's type successfully updated
+        '422':
+          description: There is no tag with this id
+        default:
+          description: Unexpected error
+  /tags/update/title/{id}:
+    post:
+      summary: Updates a tag's title by id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+      responses:
+        '201':
+          description: Tag's title successfully updated
+        '422':
+          description: There is no tag with this id
+        default:
+          description: Unexpected error

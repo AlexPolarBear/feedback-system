@@ -30,7 +30,7 @@ def get_one_course(id: int) -> Response:
     return Response(json_list, status=200, mimetype='application/json')
 
 
-@bp.route("/courses/add", methods=['POST'])
+@bp.route("/courses", methods=['POST'])
 def add_course() -> Response:
     entity = new_get_json()
     res = repository.add_courses(entity)
@@ -38,7 +38,7 @@ def add_course() -> Response:
         msg = json.dumps({"message": "не удалось добавить курс"}, ensure_ascii=False)
         return Response(msg, status=400, mimetype='application/json')
     msg = json.dumps({"message": "курс успешно сохранен"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    return Response(msg, status=201, mimetype='application/json')
     
 
 @bp.route("/courses/delete/<id>", methods=['DELETE'])
@@ -48,7 +48,7 @@ def delete_course(id: int) -> Response:
         msg = json.dumps({"message": "курс с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
     msg = json.dumps({"message": "курс успешно удален"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    return Response(msg, status=202, mimetype='application/json')
 
 
 @bp.route("/courses/update/<id>", methods=['POST'])
@@ -59,7 +59,7 @@ def update_course(id: int) -> Response:
         msg = json.dumps({"message": "курс с данным id отсутствует"}, ensure_ascii=False)
         return Response(msg, status=422, mimetype='application/json')
     msg = json.dumps({"message": "курс успешно изменен"}, ensure_ascii=False)
-    return Response(msg, status=200, mimetype='application/json')
+    return Response(msg, status=201, mimetype='application/json')
 
 
 def new_get_json():
